@@ -60,8 +60,8 @@ alternativa `pip install pypandoc_binary`).
 - **Schéma** vlastní, značky podle ČSN EN 60617 (rezistor = obdélník, přístroj = kroužek s písmenem),
   označení prvků shodné s tabulkou přístrojů.
 - **Použité přístroje**: tabulka `Označení ve schématu | Název, funkce | Typ, rozsah | Evidenční
-  (výrobní) číslo | Poznámka` (`p.pristroje`). Evidenční čísla **nikdy nevymýšlej** – chybí-li:
-  `[[DOPLNIT: evid. č.]]`.
+  (výrobní) číslo | Poznámka` (`p.pristroje`). Evidenční čísla **nikdy nevymýšlej** – chybí-li,
+  zeptej se v kroku 1.
 - **Postup** v minulém čase („zapojili jsme…“), po bodech zadání, se skutečnými přístroji a odchylkami.
 - **Tabulky** (kapitola na straně na šířku): popisek „1) co a na čem (součástka + parametry)“ +
   podmínky drobně, veličiny s jednotkami v `[ ]` na modrém podbarvení, vyznačené hodnoty (rezonance,
@@ -79,6 +79,8 @@ alternativa `pip install pypandoc_binary`).
   vhodnost přístrojů, splnění všech bodů zadání, co se nepovedlo a proč. Zakázané: „proběhlo dle
   očekávání“, „hodnoty odpovídají teoretickým předpokladům“ bez rozboru.
 - **Nikdy nevymýšlej naměřené hodnoty, evidenční čísla ani výsledky.** Nekopíruj text ze vzorů ani z webu.
+- **Žádná prázdná / žlutá místa k doplnění.** Hotový protokol nesmí obsahovat `[[DOPLNIT]]`, „???“,
+  „doplnit“ ani nic podobného – všechno chybějící zjisti dotazem v kroku 1.
 - Desetinná čárka, mezera před jednotkou, µ pro mikro, indexy jako indexy.
 
 ## Postup
@@ -99,7 +101,8 @@ protokol udělal **celý najednou, bez dalšího vyptávání a bez polotovarů*
    případně víc volání hned po sobě; jinak očíslovaný seznam). U každé otázky nabídni
    doporučenou možnost. Typicky se ptej na:
    - chybějící naměřené hodnoty nebo body zadání, ke kterým data nejsou (vynechat / dodá / jak),
-   - chybějící evidenční čísla a typy/rozsahy přístrojů (dodá / nechat žlutě k doplnění),
+   - chybějící evidenční čísla a typy/rozsahy přístrojů (ať je napíše; když přístroj číslo nemá,
+     co tam uvést – např. „bez čísla“),
    - podmínky měření, které ze vstupů nevyplývají (zátěž, kmitočet, pevné napětí, teplota, zapojení
      přístrojů – ampérmetr před/za voltmetrem …),
    - podezřelé hodnoty: odlehlé body (vyřadit z proložení?), nesedící jednotky, záměna přístrojů
@@ -112,11 +115,14 @@ protokol udělal **celý najednou, bez dalšího vyptávání a bez polotovarů*
    Neptej se na věci, které jsou ve vstupech nebo které má skill pevně dané (formát, styl,
    autor, třída, struktura) – na ty platí pravidla výše.
 4. **Počkej na odpovědi.** Pak už se nevracej s dalšími otázkami a dodělej **kompletní** protokol
-   (kroky 2–7) přesně podle odpovědí. Co Matyáš řekne, že nemá / dodá později, dej jako
-   `[[DOPLNIT: …]]` (žlutě) a vyjmenuj na konci – nic nevymýšlej.
+   (kroky 2–7) přesně podle odpovědí. **Nenechávej žádná žlutá/prázdná místa k doplnění** – na
+   všechno, co chybí, se zeptej předem. Když Matyáš odpoví, že něco nemá (přístroj bez evid. čísla,
+   nezměřený bod, chybějící oscilogram), napiš to do protokolu tak, jak řekl („bez čísla“, věta
+   v závěru proč bod chybí …) – nic nevymýšlej a nic nenechávej otevřené. Pokud z odpovědí vyplyne
+   další nutná nejasnost, polož ji hned v tom samém kole dotazů, ne až uprostřed tvorby.
 5. Pokud je všechno jasné, neptej se a rovnou tvoř. Pokud Matyáš výslovně řekne „neptej se,
    udělej to“ nebo není k dispozici (naplánovaná úloha), zvol nejrozumnější výklad, použij ho
-   a všechny předpoklady vypiš při předání.
+   a všechny předpoklady vypiš při předání (i tak bez žlutých míst v dokumentu).
 
 ### 2. Výpočty v Pythonu
 `vypocty.py`: načti data, spočítej vše požadované (numpy), zaokrouhli rozumně. Kontroluj věrohodnost
@@ -167,7 +173,7 @@ p.graf("g1.png")          # 1. graf vloží i kapitolu „Grafy“; každý graf
 p.h1("Závěr");            p.text("odstavec…\n\nodstavec…")
 p.uloz("EM_CV16_Stabilizatory.docx")
 ```
-Mini-markup: `**tučně**`, `*kurzíva*`, `X_{index}`, `X^{exp}`, `$LaTeX$`, `[[DOPLNIT: …]]`.
+Mini-markup: `**tučně**`, `*kurzíva*`, `X_{index}`, `X^{exp}`, `$LaTeX$`.
 Rovnice v LaTeXu, desetinná čárka normálně „2,63“, jednotky `\ \Omega`, `\ \mathrm{V}`.
 `p.tabulka(..., orientace="vodorovne"|"svisle", des=2 | [..] | {klíč: des}, podminky=…, vyznacit=…)`.
 
@@ -179,8 +185,7 @@ Oprav vše ✘, zvaž „!“. Prohlédni náhled stran. LibreOffice v náhledu 
 ve Wordu jsou; obsah rovnic kontroluj z výpisu skriptu. Projdi body zadání jeden po druhém.
 
 ### 7. Předání
-Pošli .docx (`EM_CV<číslo>_<Úloha>.docx`) a stručně: co obsahuje, co doplnit (žlutá místa),
-případné odchylky/předpoklady. Připomeň jen desky a originál naměřených hodnot s podpisem.
+Pošli .docx (`EM_CV<číslo>_<Úloha>.docx`) a stručně: co obsahuje a případné odchylky/předpoklady. Připomeň jen desky a originál naměřených hodnot s podpisem.
 
 ## Další situace
 - **Vrácený protokol s připomínkami**: oprav přesně připomínky, zbytek zachovej.

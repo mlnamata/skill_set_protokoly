@@ -77,7 +77,8 @@ Pravidla:
 - Typ, rozsah: výrobce a model + použitý rozsah / max. hodnoty („UNI-T UT804, rozsah 20 V“,
   „Pmax = 1 W“, „U2 = 0–230 V“).
 - Evidenční číslo přesně podle zápisu z měření (formát školy např. `3207-1956`, `10-9-1861`,
-  `9-5b-AL1680`, `T-25-19`). **Nikdy nevymýšlej** – chybí-li, napiš `[[DOPLNIT: evid. č.]]`.
+  `9-5b-AL1680`, `T-25-19`). **Nikdy nevymýšlej** – chybí-li, zeptej se předem (krok 1 ve SKILL.md);
+  žádná žlutá/prázdná místa v protokolu.
 
 ## 5. Postup měření
 

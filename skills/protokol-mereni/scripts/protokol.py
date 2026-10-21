@@ -22,7 +22,8 @@ Použití:
 
 Mini-markup v textu (text, odrážky, buňky tabulek, popisky):
     **tučně**, *kurzíva*, X_{index}, X^{exponent}, $inline LaTeX$,
-    [[DOPLNIT: co chybí]]  -> žlutě zvýrazněné místo k doplnění
+    [[DOPLNIT: …]] existuje jen pro interní rozpracování – v hotovém protokolu NESMÍ zůstat
+    (kontrola.py ho hlásí jako chybu; chybějící údaje se zjišťují dotazem předem)
 Rovnice se píší v LaTeXu a převádí se přes pandoc na nativní rovnice Wordu (OMML).
 """
 from __future__ import annotations
@@ -491,7 +492,7 @@ class Protokol:
         return t
 
     def pristroje(self, radky: Sequence[Sequence[str]]):
-        """Tabulka použitých přístrojů (5 sloupců). Chybějící evid. číslo -> '[[DOPLNIT: evid. č.]]'."""
+        """Tabulka použitých přístrojů (5 sloupců). Evidenční čísla jen skutečná (od Matyáše)."""
         data = [PRISTROJE_HLAVICKA] + [list(r) + [""] * (5 - len(r)) for r in radky]
         return self._tabulka(data, tucny_radek0=True, sirky_cm=PRISTROJE_SIRKY_CM, velikost=11,
                              podbarvit=False, zarovnat_vlevo=True, velikost_hlavicky=12)
@@ -557,7 +558,7 @@ class Protokol:
             _vloz_rovnice(cesta, self._rovnice)
         print(f"Uloženo: {cesta}")
         if self.doplnit:
-            print("K DOPLNĚNÍ (žlutě zvýrazněno v dokumentu):")
+            print("POZOR – v dokumentu zůstala žlutá místa, hotový protokol je mít nesmí:")
             for d in self.doplnit:
                 print("  -", d)
         return cesta

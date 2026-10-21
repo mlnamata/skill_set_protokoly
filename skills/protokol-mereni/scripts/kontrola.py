@@ -127,7 +127,12 @@ def main():
             for c in row.cells:
                 dopl += [r.text for p in c.paragraphs for r in p.runs if r.font.highlight_color is not None]
     if dopl:
-        varovani.append("Zbývá doplnit (žlutě): " + "; ".join(sorted(set(dopl))))
+        chyby.append("Dokument obsahuje žlutá místa k doplnění – nesmí (zeptej se a doplň): "
+                     + "; ".join(sorted(set(dopl))))
+    import re as _re
+    vse = "\n".join(p.text for p in paras) + "\n".join(c.text for t in d.tables for r in t.rows for c in r.cells)
+    if _re.search(r"DOPLNIT|\?\?\?|\[doplnit\]|TODO", vse, _re.I):
+        chyby.append("V textu zůstal zástupný text (DOPLNIT / ??? / TODO) – doplň skutečný obsah.")
 
     # --- rovnice
     n_eq = len(body.findall(".//" + qn("m:oMath")))
