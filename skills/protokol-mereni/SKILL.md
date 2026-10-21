@@ -10,6 +10,9 @@ kontrolou vyučujícího napoprvé (Zásady školy: ≥ 90 % požadavků, jinak 
 **Matyáš Mlnařík** (záhlaví každé strany). **Desky (titulní list) negeneruj** – dělá si je sám.
 Komunikuj česky a stručně. Výstup = hotový soubor, ne návod.
 
+**Pracovní režim:** nejdřív jedno kolo dotazů na vše nejasné (krok 1), potom celý protokol
+najednou a kompletně – žádné průběžné dotazy, žádné „mám pokračovat?“, žádné rozpracované části.
+
 ## 0. Nástroje skillu (nejdřív)
 
 Skripty a podrobná pravidla jsou v repu `https://github.com/mlnamata/skill_set_protokoly`
@@ -70,15 +73,40 @@ alternativa `pip install pypandoc_binary`).
 
 ## Postup
 
-### 1. Sběr vstupů
-Přečti vše, co Matyáš poslal (PDF/DOCX/fotky zadání, xlsx/csv/fotky tabulek ze sešitu, podklady).
-Vypiš si: číslo a název úlohy, předmět; měřené součástky a jejich **katalogové parametry**; **body
-zadání** (1, 2a …) – každý musí být v protokolu viditelně splněn; body „Uveďte“; co má obsahovat
-závěr a které grafy (osy, v jednom/samostatném grafu); naměřené hodnoty; přístroje s evid. čísly;
-případně „NEMĚŘIL“.
-- Bez naměřených hodnot protokol nedokončuj – zeptej se (mezitím můžeš připravit TÚ, schémata, postup).
-- Drobnosti, které chybí, dej jako `[[DOPLNIT: …]]` (žlutě) a vyjmenuj je na konci.
-- Pokud Matyáš není k dispozici, zvol rozumný výklad zadání a napiš ho v odpovědi.
+### 1. Rozbor vstupů a VŠECHNY dotazy předem (jedno kolo)
+Matyáš chce, aby se skill **zeptal na všechno nejasné ještě před začátkem tvorby** a pak už
+protokol udělal **celý najednou, bez dalšího vyptávání a bez polotovarů**. Proto:
+
+1. Přečti vše, co poslal (PDF/DOCX/fotky zadání, xlsx/csv/fotky tabulek ze sešitu, podklady).
+   Vypiš si: číslo a název úlohy, předmět; měřené součástky a jejich **katalogové parametry**;
+   **body zadání** (1, 2a …) – každý musí být v protokolu viditelně splněn; body „Uveďte“; co má
+   obsahovat závěr a které grafy (osy, v jednom/samostatném grafu); naměřené hodnoty; přístroje
+   s evid. čísly; účast (měřil / „NEMĚŘIL“).
+2. Rychle si data zpracuj nanečisto (načti, spočítej hlavní veličiny, mrkni na průběhy), ať
+   odhalíš problémy dřív, než začneš psát.
+3. Sepiš **všechny** nejasnosti, které by mohly změnit obsah protokolu, a polož je **najednou
+   v jedné zprávě** (nástroj AskUserQuestion, pokud je k dispozici – max. 4 otázky na volání,
+   případně víc volání hned po sobě; jinak očíslovaný seznam). U každé otázky nabídni
+   doporučenou možnost. Typicky se ptej na:
+   - chybějící naměřené hodnoty nebo body zadání, ke kterým data nejsou (vynechat / dodá / jak),
+   - chybějící evidenční čísla a typy/rozsahy přístrojů (dodá / nechat žlutě k doplnění),
+   - podmínky měření, které ze vstupů nevyplývají (zátěž, kmitočet, pevné napětí, teplota, zapojení
+     přístrojů – ampérmetr před/za voltmetrem …),
+   - podezřelé hodnoty: odlehlé body (vyřadit z proložení?), nesedící jednotky, záměna přístrojů
+     (počet číslic neodpovídá přístroji), záporná znaménka,
+   - interpretace sporných bodů zadání (které oblasti/rozsahy, v jednom či více grafech, co
+     porovnat v závěru),
+   - odchylky od zadání, které nastaly při měření (náhradní součástka, nezměřený bod) a jejich důvod,
+   - přílohy, které mají přijít později (oscilogramy, fotky) – nechat místo?
+   - datum měření, skupina, „NEMĚŘIL“ – jen pokud to ovlivní text.
+   Neptej se na věci, které jsou ve vstupech nebo které má skill pevně dané (formát, styl,
+   autor, struktura) – na ty platí pravidla výše.
+4. **Počkej na odpovědi.** Pak už se nevracej s dalšími otázkami a dodělej **kompletní** protokol
+   (kroky 2–7) přesně podle odpovědí. Co Matyáš řekne, že nemá / dodá později, dej jako
+   `[[DOPLNIT: …]]` (žlutě) a vyjmenuj na konci – nic nevymýšlej.
+5. Pokud je všechno jasné, neptej se a rovnou tvoř. Pokud Matyáš výslovně řekne „neptej se,
+   udělej to“ nebo není k dispozici (naplánovaná úloha), zvol nejrozumnější výklad, použij ho
+   a všechny předpoklady vypiš při předání.
 
 ### 2. Výpočty v Pythonu
 `vypocty.py`: načti data, spočítej vše požadované (numpy), zaokrouhli rozumně. Kontroluj věrohodnost

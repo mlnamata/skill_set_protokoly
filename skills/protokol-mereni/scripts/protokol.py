@@ -212,23 +212,27 @@ class Protokol:
 
     def h1(self, text: str, nova_strana: bool = False):
         """Hlavní část protokolu (Teoretický úvod, Schéma zapojení, …)."""
+        self._na_vysku()
         p = self.doc.add_heading(level=1)
         self._runs(p, text)
         p.paragraph_format.page_break_before = nova_strana
         return p
 
     def h2(self, text: str):
+        self._na_vysku()
         p = self.doc.add_heading(level=2)
         self._runs(p, text)
         return p
 
     def h3(self, text: str):
+        self._na_vysku()
         p = self.doc.add_heading(level=3)
         self._runs(p, text)
         return p
 
     def text(self, text: str, zarovnat: str = "do_bloku"):
         """Odstavec. Víc odstavců = víc volání (nebo prázdný řádek \\n\\n)."""
+        self._na_vysku()
         posledni = None
         for odst in re.split(r"\n\s*\n", text.strip()):
             p = self.doc.add_paragraph()
@@ -241,17 +245,20 @@ class Protokol:
         return posledni
 
     def odrazky(self, polozky: Iterable[str], cislovane: bool = False):
+        self._na_vysku()
         styl = "List Number" if cislovane else "List Bullet"
         for t in polozky:
             p = self.doc.add_paragraph(style=styl)
             self._runs(p, t)
 
     def zalomeni_strany(self):
+        self._na_vysku()
         self.doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
     # ------------------------------------------------------------ rovnice
     def rovnice(self, latex: str, tucne: bool = False):
         """Samostatná (vycentrovaná) rovnice v LaTeXu -> nativní rovnice Wordu."""
+        self._na_vysku()
         p = self.doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(4)
@@ -297,6 +304,7 @@ class Protokol:
     # ------------------------------------------------------------ obrázky
     def obrazek(self, cesta: str, sirka_cm: float = 14, popisek: str | None = None, zdroj: str | None = None):
         """Obrázek na střed; s popiskem 'Obrázek N: …, zdroj: …' (ve TÚ uváděj zdroj převzatých obrázků)."""
+        self._na_vysku()
         p = self.doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.keep_with_next = bool(popisek)
@@ -334,12 +342,17 @@ class Protokol:
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(0)
         p.add_run().add_picture(cesta, width=Cm(sirka_obr))
-        self._nova_sekce(na_sirku=False)
-        self._po_grafu = True
+        self._v_grafu = True  # zpět na výšku až před dalším obsahem (žádné prázdné strany mezi grafy)
+
+    def _na_vysku(self):
+        if getattr(self, "_v_grafu", False):
+            self._v_grafu = False
+            self._nova_sekce(na_sirku=False)
 
     # ------------------------------------------------------------ tabulky
     def _tabulka(self, data: list[list[str]], tucny_radek0=True, tucny_sloupec0=False,
                  sirky_cm: Sequence[float] | None = None, velikost=10):
+        self._na_vysku()
         rows, cols = len(data), max(len(r) for r in data)
         t = self.doc.add_table(rows=rows, cols=cols)
         t.style = "Table Grid"
@@ -411,8 +424,6 @@ class Protokol:
 
     # ------------------------------------------------------------ uložení
     def uloz(self, cesta: str):
-        if getattr(self, "_po_grafu", False):
-            pass
         self.doc.save(cesta)
         if self._rovnice:
             _vloz_rovnice(cesta, self._rovnice)
