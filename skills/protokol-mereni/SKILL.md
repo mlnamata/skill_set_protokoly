@@ -110,7 +110,8 @@ protokol udělal **celý najednou, bez dalšího vyptávání a bez polotovarů*
    - interpretace sporných bodů zadání (které oblasti/rozsahy, v jednom či více grafech, co
      porovnat v závěru),
    - odchylky od zadání, které nastaly při měření (náhradní součástka, nezměřený bod) a jejich důvod,
-   - přílohy, které mají přijít později (oscilogramy, fotky) – nechat místo?
+   - chybějící přílohy (oscilogramy, fotky, printscreeny) – ať je pošle hned, nebo co s nimi
+     (vynechat a v textu uvést proč),
    - datum měření, skupina, „NEMĚŘIL“ – jen pokud to ovlivní text.
    Neptej se na věci, které jsou ve vstupech nebo které má skill pevně dané (formát, styl,
    autor, třída, struktura) – na ty platí pravidla výše.
