@@ -21,7 +21,8 @@ v odborných předmětech* (katedra ODP, Ing. Karel Hajžman) a studentské prez
 - **Všechny listy očíslované a podepsané** → v elektronické verzi záhlaví „Jméno Příjmení“ vlevo
   a číslo stránky vpravo na každé straně (kromě desek). Počet listů na deskách je **bez desek**.
 - Pokud žák na měření nebyl, použije hodnoty své skupiny a na protokol uvede poznámku **„NEMĚŘIL“**.
-- Tiskne se jednostranně, nejlépe **černobíle** (grafy musí být čitelné i v ČB).
+- Tiskne se jednostranně. Zásady doporučují černobíle, Matyáš ale používá **barevné grafy jako
+  v CV1** – řady proto odlišuj i stylem čáry/značkou, ať jsou čitelné i při ČB tisku.
 - Teoretický úvod a závěr musí být **vlastními slovy** – shodné práce = „nedostatečně“ (plagiát).
   Vyučující si pamatují formulace z Wikipedie i protokoly starších ročníků.
 - Desky (titulní list A3) si žák vyplňuje sám – stahují se z Filru

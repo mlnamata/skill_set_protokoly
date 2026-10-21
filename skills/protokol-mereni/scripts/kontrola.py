@@ -31,6 +31,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("docx")
     ap.add_argument("--autor", default="Matyáš Mlnařík")
+    ap.add_argument("--trida", default="4. P")
     ap.add_argument("--nahled", action="store_true")
     a = ap.parse_args()
     d = Document(a.docx)
@@ -49,10 +50,12 @@ def main():
     # --- záhlaví se jménem a číslem stránky
     hdr_ok = True
     for i, s in enumerate(d.sections):
-        xml = s.header._element.xml
-        if a.autor not in xml or "PAGE" not in xml:
+        hx, fx = s.header._element.xml, s.footer._element.xml
+        if a.autor not in hx or a.trida not in hx or "PAGE" not in fx:
             hdr_ok = False
-    (ok if hdr_ok else chyby).append(f"Záhlaví se jménem „{a.autor}“ a číslem stránky ve všech sekcích" + ("" if hdr_ok else " – CHYBÍ"))
+    (ok if hdr_ok else chyby).append(
+        f"Záhlaví „{a.autor}“ vlevo + „{a.trida}“ vpravo a číslo stránky v zápatí vpravo ve všech sekcích"
+        + ("" if hdr_ok else " – CHYBÍ"))
 
     # --- grafy: každý ve vlastní sekci na šířku
     body = d.element.body

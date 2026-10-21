@@ -1,4 +1,7 @@
-# Vzorové elaboráty (EM, 3. ročník)
+# Vzorové elaboráty
+
+Vzhled a styl se řídí **Matyášovým CV1**; ostatní vzory (starší elaboráty EM 3. ročníku) jen
+pro obsah a rozsah podobných úloh.
 
 Textové výtahy z hotových protokolů (obrázky nahrazeny `[obrázek]`, tabulky zjednodušené).
 Originály .docx jsou v repu v `podklady/elaboraty/`.
@@ -10,6 +13,7 @@ ty neopakuj; řiď se `pravidla.md` a `styl-a-struktura.md`.
 
 | Soubor | Úloha | Hodí se jako vzor pro |
 |---|---|---|
+| **`CV1_Mlnarik_VZOR_STYLU.md`** | **Matyášův CV1 – reproduktory** | **HLAVNÍ VZOR VZHLEDU A STYLU** – tučné pojmy, odrážky v TÚ, tabulky „1) …“, výpočty, grafy |
 | `EM3_CV12.md` | Měření kapacity – můstky (De Sauty, Wien, rezonanční), vybíjení elektrolytu | můstkové metody, vybíjecí křivka, průměrování |
 | `EM_CV12a.md` | Měření indukčnosti – VA, VAW metoda, rezonanční můstek, LRC metr | porovnání metod, tlumivka vs. vzduchová cívka |
 | `EM_CV13_1.md` | Světelné zdroje | fotometrie, porovnání zdrojů |

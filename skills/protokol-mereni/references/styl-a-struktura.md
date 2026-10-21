@@ -17,17 +17,31 @@ struktury, rozsahu a tónu** – text z nich nikdy nepřebírej doslova (plagiá
 
 ---
 
-## 1. Celkový vzhled dokumentu
+## 1. Celkový vzhled dokumentu – podle Matyášova CV1 (`vzory/CV1_Mlnarik_VZOR_STYLU.md`)
 
-- A4 na výšku, okraje 2,5 cm, písmo Calibri 11 pt, nadpisy Calibri Light (H1 20 pt, H2 16 pt), barva
-  nadpisů výchozí modrá Wordu. Odstavce do bloku.
-- Záhlaví každé strany: `Matyáš Mlnařík` vlevo, číslo stránky vpravo (řeší `protokol.py`).
-- Desky (titulní list) **negeneruj** – Matyáš si je dělá sám. Dokument začíná rovnou „Teoretický úvod“.
-- Nadpisy 1. úrovně = části protokolu (přesně tyto názvy):
+Vše níže nastavuje `protokol.py` sám – jen ho nepřepisuj vlastním formátováním.
+
+- A4 na výšku, okraje 2,5 cm, **Calibri 11 pt, černý text**, zarovnání **vlevo**, mezera za odstavcem 4 pt.
+- **Záhlaví:** `Matyáš Mlnařík` vlevo, třída **`4. P`** vpravo. **Zápatí:** číslo stránky **vpravo dole**.
+- **Nadpisy jsou černé a tučné, číslované:** H1 20 pt „1. Teoretický úvod“, H2 14 pt „1.1 Zvuk a jeho
+  parametry“, H3 11 pt. Číslování dělá skript – do textu nadpisu čísla nepiš.
+- Kapitoly (H1, přesně tyto názvy, skript je očísluje 1–8):
   `Teoretický úvod`, `Schéma zapojení`, `Použité přístroje`, `Postup měření`, `Tabulky`,
-  `Příklad výpočtu`, (grafy bez nadpisu – název je v grafu), `Závěr`.
-- Nadpisy 2. úrovně = podtémata / jednotlivé tabulky / jednotlivé výpočty / jednotlivá schémata.
-- Grafy až za „Příklad výpočtu“, každý na samostatné straně na šířku, před „Závěrem“.
+  `Příklad výpočtu`, `Grafy` (vloží `p.graf()` sám nad první graf), `Závěr`.
+- V textu **tučně klíčové pojmy a důležité hodnoty** („**mechanické vlnění pružného prostředí**“,
+  „**c ≈ 343 m/s**“), *kurzívou* typy/druhy. V teoretickém úvodu jsou vhodné **odrážky s tučným
+  pojmem na začátku** („**Kmitočet f [Hz]** určuje výšku tónu; …“).
+- Popisky obrázků kurzívou 10 pt pod obrázkem, bez „Obrázek N:“ (jako v CV1).
+- **Tabulky**: kapitola „Tabulky“ na straně **na šířku** (`p.h1("Tabulky", na_sirku=True)`), nad každou
+  tabulkou tučný popisek 10 pt „1) Impedance hloubkového reproduktoru ARN 5608“ + drobné podmínky
+  9 pt („I = konst. = 15 mA, Z = U / I“). Popisky veličin (1. sloupec / hlavička) tučně na modrém
+  podbarvení, **vyznačené hodnoty** (rezonance, maximum, jmenovitá hodnota) tučně na oranžovém
+  podbarvení (`vyznacit=`), pod tabulkami případně řádek „**Vyznačeno:** …“.
+- **Příklad výpočtu**: nadpis každého výpočtu jako tučný popisek 10 pt („Impedance hloubkového
+  reproduktoru – rezonance (f = 75 Hz):“), pak rovnice.
+- **Grafy** barevné jako v CV1: modrá proložená křivka s modrými křížky naměřených bodů, zvýrazněné
+  body velkým červeným/zeleným/oranžovým křížkem s popiskem, šedé pásmo pro rozsah, legenda pod grafem.
+- Desky (titulní list) **negeneruj** – Matyáš si je dělá sám.
 - Typický rozsah hotového protokolu: 12–20 stran (z toho 2–3 strany TÚ, 1 strana na každý graf).
 
 ## 2. Teoretický úvod
@@ -77,8 +91,9 @@ Pravidla:
 
 ## 6. Tabulky
 
-- Každá tabulka pod H2 s výstižným názvem: *„Tabulka měření zatěžovací charakteristiky usměrňovače
-  z diod KY718, C0 = 4 mF“*, *„Tabulka vybíjení kondenzátoru Cx = 330 µF“*.
+- Každá tabulka má výstižný popisek (skript ho očísluje „1)“): *„Zatěžovací charakteristika
+  usměrňovače z diod KY718, C0 = 4 mF“*, *„Vybíjení kondenzátoru Cx = 330 µF“*; podmínky měření
+  do `podminky=`.
 - Veličina + jednotka v hranatých závorkách: `U_{0} [V]`, `I [mA]`, `Lx [mH]`, `cos φ [-]`.
 - Vzory používají **vodorovné tabulky** (veličiny v řádcích, hodnoty ve sloupcích), dlouhé řady
   zalomené do více bloků → `p.tabulka(..., orientace="vodorovne", max_sloupcu=10–12)`.
@@ -92,7 +107,7 @@ Pravidla:
 ## 7. Příklad výpočtu
 
 Formát každého výpočtu (Matyášova preference) – `p.vypocet(...)`:
-1. H2 „Výpočet …“ (co a pro jakou hodnotu, např. „Výpočet činitele zvlnění pro C0 = 4 mF, I = 2,2 A“),
+1. tučný popisek „Výpočet …:“ (co a pro jakou hodnotu, např. „Činitel zvlnění pro C0 = 4 mF, I = 2,2 A:“),
 2. **obecný vztah**,
 3. **popis veličin** („kde ΔU … změna napětí [V], ΔI … změna proudu [A]“),
 4. **dosazení** na samostatném řádku (číselné hodnoty z tabulek, s mocninami 10 místo předpon:

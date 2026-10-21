@@ -1,27 +1,29 @@
 """
 protokol.py – sestavení protokolu o měření (elaborátu) do Wordu (.docx)
-ve stylu VOŠ a SPŠE Plzeň.
+ve stylu Matyášova protokolu CV1 (VOŠ a SPŠE Plzeň).
 
-Použití (z vlastního build skriptu):
+Vzhled (podle CV1):
+  * A4, okraje 2,5 cm, Calibri 11 pt, černý text, zarovnání vlevo, mezera za odstavcem 4 pt
+  * nadpis 1. úrovně: tučně, černě, 20 pt, číslovaný „1. Teoretický úvod“
+  * nadpis 2. úrovně: tučně, černě, 14 pt, číslovaný „1.1 …“; 3. úroveň tučně 11 pt
+  * záhlaví: jméno vlevo, třída („4. P“) vpravo; zápatí: číslo stránky vpravo dole
+  * tabulky: popisek „1) Název …“ tučně 10 pt + podmínky 9 pt; první sloupec (nebo
+    hlavička) tučně s modrým podbarvením D9E2F3, vyznačené hodnoty oranžově FCE4D6
+  * grafy: každý na samostatné straně na šířku, před prvním grafem nadpis „Grafy“
 
-    import sys; sys.path.insert(0, "<cesta ke skillu>/scripts")
+Použití:
+    import sys; sys.path.insert(0, "<skill>/scripts")
     from protokol import Protokol
-
-    p = Protokol(autor="Matyáš Mlnařík")
-    p.h1("Teoretický úvod")
-    p.h2("Usměrňovač")
-    p.text("Usměrňovač mění střídavé napětí na stejnosměrné. Výstupní napětí U_{0} ...")
-    p.rovnice(r"R_i = \\frac{\\Delta U}{\\Delta I}\\ [\\Omega]")
-    p.obrazek("schema.png", sirka_cm=14, popisek="Schéma Graetzova můstku")
+    p = Protokol(autor="Matyáš Mlnařík", trida="4. P")
+    p.h1("Teoretický úvod"); p.h2("Usměrňovač"); p.text("… **klíčový pojem** … U_{0} …")
+    p.rovnice(r"R_i = \\frac{\\Delta U}{\\Delta I}")
     ...
     p.uloz("EM_CV14.docx")
 
 Mini-markup v textu (text, odrážky, buňky tabulek, popisky):
     **tučně**, *kurzíva*, X_{index}, X^{exponent}, $inline LaTeX$,
     [[DOPLNIT: co chybí]]  -> žlutě zvýrazněné místo k doplnění
-
 Rovnice se píší v LaTeXu a převádí se přes pandoc na nativní rovnice Wordu (OMML).
-Desetinná čárka: piš normálně "2,63" – skript čísla s čárkou slepí do jednoho bloku.
 """
 from __future__ import annotations
 
@@ -38,28 +40,22 @@ from docx import Document
 from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_COLOR_INDEX, WD_TAB_ALIGNMENT
-from docx.oxml import OxmlElement, parse_xml
+from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
-M_NS = "http://schemas.openxmlformats.org/officeDocument/2006/math"
-W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-
-# ---------------------------------------------------------------- vzhled
+# ---------------------------------------------------------------- vzhled (CV1)
 PISMO = "Calibri"
-PISMO_NADPIS = "Calibri Light"
 VELIKOST = 11
-BARVA_NADPISU = RGBColor(0x2F, 0x54, 0x96)  # výchozí modrá Wordu jako ve vzorech
+CERNA = RGBColor(0, 0, 0)
+NADPISY = {1: (20, 12, 4), 2: (14, 10, 4), 3: (11, 8, 2)}  # velikost, mezera před, za
 OKRAJ_CM = 2.5
+PODBARVENI_HLAVICKY = "D9E2F3"   # modrá – popisky veličin v tabulkách
+PODBARVENI_VYZNACENI = "FCE4D6"  # oranžová – vyznačené hodnoty (rezonance, maxima …)
 
-PRISTROJE_HLAVICKA = [
-    "OZNAČENÍ\nVE SCHÉMATU",
-    "NÁZEV, FUNKCE",
-    "TYP, ROZSAH",
-    "EVIDENČNÍ (VÝROBNÍ)\nČÍSLO",
-    "POZNÁMKA",
-]
-PRISTROJE_SIRKY_CM = [2.6, 4.2, 4.4, 3.4, 2.4]
+PRISTROJE_HLAVICKA = ["Označení ve schématu", "Název, funkce", "Typ, rozsah",
+                      "Evidenční (výrobní) číslo", "Poznámka"]
+PRISTROJE_SIRKY_CM = [3.0, 3.4, 3.6, 3.4, 2.6]
 
 _INLINE_RE = re.compile(
     r"(\[\[DOPLNIT:[^\]]*\]\]|\$[^$]+\$|\*\*[^*]+\*\*|\*[^*]+\*|_\{[^}]*\}|\^\{[^}]*\})"
@@ -67,28 +63,49 @@ _INLINE_RE = re.compile(
 
 
 def fmt(cislo, des=2) -> str:
-    """Číslo -> text s desetinnou čárkou, zaokrouhlený na `des` míst."""
+    """Číslo -> text s desetinnou čárkou, zaokrouhlený na `des` míst (des=None -> jak je)."""
     if isinstance(cislo, str):
         return cislo
     if cislo is None:
         return ""
-    if isinstance(cislo, int) and des is None:
-        return str(cislo)
+    try:
+        import math
+        if isinstance(cislo, float) and math.isnan(cislo):
+            return ""
+    except Exception:
+        pass
     s = f"{cislo:.{des}f}" if des is not None else f"{cislo:g}"
     return s.replace(".", ",")
 
 
+def _shd(cell, fill):
+    tcPr = cell._tc.get_or_add_tcPr()
+    for old in tcPr.findall(qn("w:shd")):
+        tcPr.remove(old)
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:val"), "clear"); shd.set(qn("w:color"), "auto"); shd.set(qn("w:fill"), fill)
+    tcPr.append(shd)
+
+
 class Protokol:
-    def __init__(self, autor: str = "Matyáš Mlnařík", pismo: str = PISMO):
+    def __init__(self, autor: str = "Matyáš Mlnařík", trida: str = "4. P", cislovat: bool = True,
+                 pismo: str = PISMO):
         self.autor = autor
+        self.trida = trida
+        self.cislovat = cislovat
         self.doc = Document()
-        self._rovnice: list[tuple[str, bool]] = []  # (latex, display)
-        self._cislo_obr = 0
-        self._cislo_tab = 0
+        self._rovnice: list[tuple[str, bool, bool]] = []
+        self._n1 = 0
+        self._n2 = 0
+        self._n3 = 0
+        self._ntab = 0
         self.doplnit: list[str] = []
+        self._rezim = None        # None | "graf" | "sirka" – aktuální sekce na šířku
+        self._grafy_nadpis = False
         self._styly(pismo)
-        self._strana(self.doc.sections[0], na_sirku=False)
-        self._zahlavi(self.doc.sections[0])
+        sec = self.doc.sections[0]
+        self._strana(sec, na_sirku=False)
+        self._zahlavi_zapati(sec)
 
     # ------------------------------------------------------------ nastavení
     def _styly(self, pismo):
@@ -96,33 +113,45 @@ class Protokol:
         n = st["Normal"]
         n.font.name = pismo
         n.font.size = Pt(VELIKOST)
-        n.element.rPr.rFonts.set(qn("w:eastAsia"), pismo)
-        n.paragraph_format.space_after = Pt(6)
-        n.paragraph_format.line_spacing = 1.08
-        for jmeno, vel, pred in (("Heading 1", 20, 18), ("Heading 2", 16, 10), ("Heading 3", 13, 8)):
-            s = st[jmeno]
-            s.font.name = PISMO_NADPIS
+        n.font.color.rgb = CERNA
+        rf = n.element.rPr.rFonts
+        for a in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
+            rf.set(qn(a), pismo)
+        n.paragraph_format.space_before = Pt(0)
+        n.paragraph_format.space_after = Pt(4)
+        n.paragraph_format.line_spacing = 1.0
+        for lvl, (vel, pred, za) in NADPISY.items():
+            s = st[f"Heading {lvl}"]
+            s.font.name = pismo
             s.font.size = Pt(vel)
-            s.font.bold = False
-            s.font.color.rgb = BARVA_NADPISU
+            s.font.bold = True
+            s.font.italic = False
+            s.font.color.rgb = CERNA
             rpr = s.element.get_or_add_rPr()
             rf = rpr.find(qn("w:rFonts"))
             if rf is None:
-                rf = OxmlElement("w:rFonts")
-                rpr.append(rf)
-            for a in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
-                rf.set(qn(a), PISMO_NADPIS)
+                rf = OxmlElement("w:rFonts"); rpr.append(rf)
             for a in ("w:asciiTheme", "w:hAnsiTheme", "w:eastAsiaTheme", "w:cstheme"):
                 if rf.get(qn(a)) is not None:
                     del rf.attrib[qn(a)]
+            for a in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
+                rf.set(qn(a), pismo)
             s.paragraph_format.space_before = Pt(pred)
-            s.paragraph_format.space_after = Pt(4)
+            s.paragraph_format.space_after = Pt(za)
             s.paragraph_format.keep_with_next = True
+        for jmeno in ("List Bullet", "List Number"):
+            st[jmeno].paragraph_format.space_after = Pt(2)
+        for jmeno in ("Header", "Footer"):
+            ppr = st[jmeno].element.get_or_add_pPr()
+            for t in ppr.findall(qn("w:tabs")):
+                ppr.remove(t)
         cap = st["Caption"]
         cap.font.name = pismo
-        cap.font.size = Pt(9)
+        cap.font.size = Pt(10)
         cap.font.italic = True
-        cap.font.color.rgb = RGBColor(0x40, 0x40, 0x40)
+        cap.font.bold = False
+        cap.font.color.rgb = CERNA
+        cap.paragraph_format.space_after = Pt(6)
 
     def _strana(self, sec, na_sirku: bool):
         sir, vys = Cm(21.0), Cm(29.7)
@@ -137,20 +166,24 @@ class Protokol:
         sec.header_distance = Cm(1.25)
         sec.footer_distance = Cm(1.25)
 
-    def _zahlavi(self, sec):
-        """Záhlaví: jméno vlevo, číslo stránky vpravo (Zásady: očíslované listy se jménem)."""
+    def _zahlavi_zapati(self, sec):
+        """Záhlaví: jméno vlevo, třída vpravo. Zápatí: číslo stránky vpravo dole."""
+        sirka = sec.page_width - sec.left_margin - sec.right_margin
         sec.header.is_linked_to_previous = False
-        hdr = sec.header
-        p = hdr.paragraphs[0]
+        p = sec.header.paragraphs[0]
         for r in list(p.runs):
             r._element.getparent().remove(r._element)
-        sirka = sec.page_width - sec.left_margin - sec.right_margin
-        p.paragraph_format.tab_stops.clear_all() if hasattr(p.paragraph_format.tab_stops, "clear_all") else None
+        p.paragraph_format.space_after = Pt(0)
         p.paragraph_format.tab_stops.add_tab_stop(sirka, WD_TAB_ALIGNMENT.RIGHT)
-        r = p.add_run(self.autor)
-        r.font.size = Pt(9)
-        r = p.add_run("\t")
-        self._pole(p, "PAGE", "1", Pt(9))
+        p.add_run(self.autor)
+        p.add_run("\t" + (self.trida or ""))
+        sec.footer.is_linked_to_previous = False
+        f = sec.footer.paragraphs[0]
+        for r in list(f.runs):
+            r._element.getparent().remove(r._element)
+        f.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        f.paragraph_format.space_after = Pt(0)
+        self._pole(f, "PAGE", "1")
 
     @staticmethod
     def _pole(p, instr, vychozi, size=None):
@@ -160,7 +193,7 @@ class Protokol:
                 r.font.size = size
             return r
         r = run(); fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), "begin"); r._r.append(fc)
-        r = run(); it = OxmlElement("w:instrText"); it.set(qn("xml:space"), "preserve"); it.text = f" {instr} \\* MERGEFORMAT "; r._r.append(it)
+        r = run(); it = OxmlElement("w:instrText"); it.set(qn("xml:space"), "preserve"); it.text = f" {instr} "; r._r.append(it)
         r = run(); fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), "separate"); r._r.append(fc)
         r = run(); r.text = vychozi
         r = run(); fc = OxmlElement("w:fldChar"); fc.set(qn("w:fldCharType"), "end"); r._r.append(fc)
@@ -168,12 +201,29 @@ class Protokol:
     def _nova_sekce(self, na_sirku: bool):
         sec = self.doc.add_section(WD_SECTION.NEW_PAGE)
         self._strana(sec, na_sirku)
-        self._zahlavi(sec)  # vlastní záhlaví – správná pozice tabulátoru pro výšku i šířku
+        self._zahlavi_zapati(sec)
         return sec
+
+    # ------------------------------------------------------------ orientace stran
+    def na_sirku(self):
+        """Další obsah na stranu na šířku (např. široké tabulky jako v CV1). Platí do na_vysku()
+        nebo do dalšího nadpisu 1. úrovně."""
+        if self._rezim != "sirka":
+            self._nova_sekce(na_sirku=True)
+        self._rezim = "sirka"
+
+    def na_vysku(self):
+        if self._rezim is not None:
+            self._rezim = None
+            self._nova_sekce(na_sirku=False)
+
+    def _priprav(self, h1=False):
+        """Před běžným obsahem: po grafu (nebo před novou kapitolou) vrátit stránku na výšku."""
+        if self._rezim == "graf" or (h1 and self._rezim == "sirka"):
+            self.na_vysku()
 
     # ------------------------------------------------------------ text
     def _runs(self, p, text: str, bold=False, italic=False, size=None):
-        """Vloží text s mini-markupem do odstavce p."""
         for kus in _INLINE_RE.split(text):
             if not kus:
                 continue
@@ -197,7 +247,10 @@ class Protokol:
             parts = t.split("\n")
             for k, part in enumerate(parts):
                 r = p.add_run(part)
-                r.bold, r.italic = b, i
+                if b:
+                    r.bold = True      # jinak nechat dědit ze stylu (nadpisy jsou tučné)
+                if i:
+                    r.italic = True
                 if sub:
                     r.font.subscript = True
                 if sup:
@@ -210,29 +263,36 @@ class Protokol:
                     r.add_break()
         return p
 
-    def h1(self, text: str, nova_strana: bool = False):
-        """Hlavní část protokolu (Teoretický úvod, Schéma zapojení, …)."""
-        self._na_vysku()
+    def h1(self, text: str, nova_strana: bool = False, na_sirku: bool = False):
+        """Kapitola protokolu – automaticky číslovaná „1. Teoretický úvod“.
+        na_sirku=True: kapitola začne na straně na šířku (např. „Tabulky“ se širokými tabulkami
+        jako v CV1); zpět na výšku se přejde u další kapitoly nebo p.na_vysku()."""
+        self._priprav(h1=True)
+        if na_sirku:
+            self.na_sirku()
+        self._n1 += 1; self._n2 = 0; self._n3 = 0
         p = self.doc.add_heading(level=1)
-        self._runs(p, text)
+        self._runs(p, f"{self._n1}. {text}" if self.cislovat else text)
         p.paragraph_format.page_break_before = nova_strana
         return p
 
     def h2(self, text: str):
-        self._na_vysku()
+        """Podkapitola – automaticky číslovaná „1.1 …“."""
+        self._priprav()
+        self._n2 += 1; self._n3 = 0
         p = self.doc.add_heading(level=2)
-        self._runs(p, text)
+        self._runs(p, f"{self._n1}.{self._n2} {text}" if self.cislovat else text)
         return p
 
     def h3(self, text: str):
-        self._na_vysku()
+        self._priprav()
         p = self.doc.add_heading(level=3)
         self._runs(p, text)
         return p
 
-    def text(self, text: str, zarovnat: str = "do_bloku"):
-        """Odstavec. Víc odstavců = víc volání (nebo prázdný řádek \\n\\n)."""
-        self._na_vysku()
+    def text(self, text: str, zarovnat: str = "vlevo"):
+        """Odstavec(e) – oddělené prázdným řádkem. zarovnat: vlevo | do_bloku | na_stred."""
+        self._priprav()
         posledni = None
         for odst in re.split(r"\n\s*\n", text.strip()):
             p = self.doc.add_paragraph()
@@ -244,21 +304,32 @@ class Protokol:
             posledni = p
         return posledni
 
+    def popisek(self, text: str, velikost: float = 10, tucne: bool = True, mezera_pred: float = 8):
+        """Krátký tučný popisek (jako nadpisy výpočtů v CV1)."""
+        self._priprav()
+        p = self.doc.add_paragraph()
+        p.paragraph_format.space_before = Pt(mezera_pred)
+        p.paragraph_format.space_after = Pt(2)
+        p.paragraph_format.keep_with_next = True
+        self._runs(p, text, bold=tucne, size=Pt(velikost))
+        return p
+
     def odrazky(self, polozky: Iterable[str], cislovane: bool = False):
-        self._na_vysku()
+        """Odrážky (v TÚ s tučnými klíčovými pojmy jako v CV1: '**Kmitočet f [Hz]** určuje …')."""
+        self._priprav()
         styl = "List Number" if cislovane else "List Bullet"
         for t in polozky:
             p = self.doc.add_paragraph(style=styl)
             self._runs(p, t)
 
     def zalomeni_strany(self):
-        self._na_vysku()
+        self._priprav()
         self.doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
     # ------------------------------------------------------------ rovnice
     def rovnice(self, latex: str, tucne: bool = False):
         """Samostatná (vycentrovaná) rovnice v LaTeXu -> nativní rovnice Wordu."""
-        self._na_vysku()
+        self._priprav()
         p = self.doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(4)
@@ -274,13 +345,14 @@ class Protokol:
 
     def vypocet(self, nadpis: str, obecne: str, promenne: str | Sequence[tuple[str, str]] | None,
                 dosazeni: str | Sequence[str], vysledek: str, poznamka: str | None = None):
-        """Příklad výpočtu ve stylu: obecný vztah -> popis veličin -> dosazení -> TUČNÝ výsledek.
+        """Příklad výpočtu: tučný popisek (10 pt) -> obecný vztah -> popis veličin ->
+        dosazení -> TUČNÝ výsledek.
 
-        promenne: "kde U je ..." (text s mini-markupem) nebo [("$U$", "napětí na zátěži [V]"), ...]
-        dosazeni: LaTeX řádek nebo seznam řádků (každý na samostatném řádku)
+        promenne: "kde U je ..." nebo [("$U$", "napětí na zátěži [V]"), ...]
+        dosazeni: LaTeX řádek nebo seznam řádků
         vysledek: LaTeX výsledku i s jednotkou, např. r"R_i = 2,63\\ \\Omega"
         """
-        self.h2(nadpis)
+        self.popisek(nadpis)
         self.rovnice(obecne)
         if promenne:
             if isinstance(promenne, str):
@@ -288,13 +360,14 @@ class Protokol:
             else:
                 casti = [f"{sym} … {popis}" for sym, popis in promenne]
                 p = self.doc.add_paragraph()
+                p.paragraph_format.space_after = Pt(0)
                 self._runs(p, "kde " + casti[0])
                 for c in casti[1:]:
                     p = self.doc.add_paragraph()
                     p.paragraph_format.left_indent = Cm(0.75)
                     p.paragraph_format.space_after = Pt(0)
                     self._runs(p, c)
-                p.paragraph_format.space_after = Pt(6)
+                p.paragraph_format.space_after = Pt(4)
         for r in ([dosazeni] if isinstance(dosazeni, str) else dosazeni):
             self.rovnice(r)
         self.rovnice(vysledek, tucne=True)
@@ -303,37 +376,42 @@ class Protokol:
 
     # ------------------------------------------------------------ obrázky
     def obrazek(self, cesta: str, sirka_cm: float = 14, popisek: str | None = None, zdroj: str | None = None):
-        """Obrázek na střed; s popiskem 'Obrázek N: …, zdroj: …' (ve TÚ uváděj zdroj převzatých obrázků)."""
-        self._na_vysku()
+        """Obrázek na střed s popiskem pod ním (kurzíva 10 pt, jako v CV1)."""
+        self._priprav()
         p = self.doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.keep_with_next = bool(popisek)
         p.add_run().add_picture(cesta, width=Cm(sirka_cm))
         if popisek:
-            self._cislo_obr += 1
-            t = f"Obrázek {self._cislo_obr}: {popisek}"
-            if zdroj:
-                t += f", zdroj: {zdroj}"
+            t = popisek + (f", zdroj: {zdroj}" if zdroj else "")
             c = self.doc.add_paragraph(style="Caption")
             c.alignment = WD_ALIGN_PARAGRAPH.CENTER
             self._runs(c, t)
         return p
 
     def schema(self, cesta: str, nadpis: str | None = None, sirka_cm: float = 15):
-        """Schéma zapojení: nadpis H2 (např. 'Měření VA metodou') + obrázek."""
+        """Schéma zapojení: (volitelně) podnadpis + obrázek."""
         if nadpis:
             self.h2(nadpis)
         return self.obrazek(cesta, sirka_cm=sirka_cm)
 
-    def graf(self, cesta: str, na_sirku: bool = True):
-        """Graf přes celou stranu A4 – vždy sám na stránce (název je přímo v obrázku grafu).
-
-        Vloží novou sekci na šířku, graf, a vrátí se zpět na výšku.
-        """
-        self._nova_sekce(na_sirku=na_sirku)
+    def graf(self, cesta: str, nadpis_kapitoly: str | None = "Grafy"):
+        """Graf přes celou stranu A4 na šířku – každý graf sám na stránce.
+        Před prvním grafem se na téže straně vloží kapitola „N. Grafy“ (jako v CV1);
+        nadpis_kapitoly=None ji vynechá."""
+        if self._rezim == "sirka":
+            self._rezim = None
+        self._nova_sekce(na_sirku=True)
         sec = self.doc.sections[-1]
         sirka = (sec.page_width - sec.left_margin - sec.right_margin) / 360000  # cm
-        vyska = (sec.page_height - sec.top_margin - sec.bottom_margin) / 360000 - 1.2
+        vyska = (sec.page_height - sec.top_margin - sec.bottom_margin) / 360000 - 1.0
+        if nadpis_kapitoly and not self._grafy_nadpis:
+            self._grafy_nadpis = True
+            self._n1 += 1; self._n2 = 0
+            h = self.doc.add_heading(level=1)
+            h.paragraph_format.space_before = Pt(0)
+            self._runs(h, f"{self._n1}. {nadpis_kapitoly}" if self.cislovat else nadpis_kapitoly)
+            vyska -= 1.6
         from PIL import Image
         with Image.open(cesta) as im:
             pomer = im.height / im.width
@@ -342,63 +420,108 @@ class Protokol:
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(0)
         p.add_run().add_picture(cesta, width=Cm(sirka_obr))
-        self._v_grafu = True  # zpět na výšku až před dalším obsahem (žádné prázdné strany mezi grafy)
-
-    def _na_vysku(self):
-        if getattr(self, "_v_grafu", False):
-            self._v_grafu = False
-            self._nova_sekce(na_sirku=False)
+        self._rezim = "graf"
 
     # ------------------------------------------------------------ tabulky
     def _tabulka(self, data: list[list[str]], tucny_radek0=True, tucny_sloupec0=False,
-                 sirky_cm: Sequence[float] | None = None, velikost=10):
-        self._na_vysku()
+                 sirky_cm: Sequence[float] | None = None, velikost=10.5, podbarvit=True,
+                 zvyraznene: set | None = None, zarovnat_vlevo=False, velikost_hlavicky=None):
+        self._priprav()
         rows, cols = len(data), max(len(r) for r in data)
+        if cols > 14 and velikost > 9:
+            velikost = 9 if cols <= 24 else 8          # hodně sloupců -> menší písmo (CV1: 9 pt)
         t = self.doc.add_table(rows=rows, cols=cols)
         t.style = "Table Grid"
         t.alignment = WD_TABLE_ALIGNMENT.CENTER
+        if cols > 8:  # široká tabulka přes celou šířku textu
+            tblPr = t._tbl.tblPr
+            for old in tblPr.findall(qn("w:tblW")):
+                tblPr.remove(old)
+            tw = OxmlElement("w:tblW"); tw.set(qn("w:w"), "5000"); tw.set(qn("w:type"), "pct"); tblPr.append(tw)
+        zvyraznene = zvyraznene or set()
         for i, r in enumerate(data):
             for j in range(cols):
                 v = r[j] if j < len(r) else ""
                 c = t.cell(i, j)
                 p = c.paragraphs[0]
-                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                p.alignment = WD_ALIGN_PARAGRAPH.LEFT if zarovnat_vlevo else WD_ALIGN_PARAGRAPH.CENTER
                 p.paragraph_format.space_after = Pt(0)
                 p.paragraph_format.line_spacing = 1.0
-                b = (tucny_radek0 and i == 0) or (tucny_sloupec0 and j == 0)
-                self._runs(p, str(v), bold=b, size=Pt(velikost))
+                hlav = (tucny_radek0 and i == 0) or (tucny_sloupec0 and j == 0)
+                zv = (i, j) in zvyraznene
+                vel = velikost_hlavicky if (velikost_hlavicky and tucny_radek0 and i == 0) else velikost
+                self._runs(p, str(v), bold=(hlav and not velikost_hlavicky) or zv, size=Pt(vel))
+                if podbarvit and hlav and str(v).strip():
+                    _shd(c, PODBARVENI_HLAVICKY)
+                if zv:
+                    _shd(c, PODBARVENI_VYZNACENI)
+        sec = self.doc.sections[-1]
+        k = (sec.page_width - sec.left_margin - sec.right_margin) / 360000  # šířka textu v cm
+        if not sirky_cm and cols > 8:
+            # široká tabulka: úzké okraje buněk, 1. sloupec podle popisku, zbytek rovnoměrně
+            mar = OxmlElement("w:tblCellMar")
+            for strana in ("left", "right"):
+                e = OxmlElement(f"w:{strana}"); e.set(qn("w:w"), "40"); e.set(qn("w:type"), "dxa"); mar.append(e)
+            t._tbl.tblPr.append(mar)
+            delka = max(len(re.sub(r"[_^{}*$]", "", str(r[0]))) for r in data)
+            prvni = min(3.0, max(1.2, 0.02 * velikost * delka + 0.3))
+            zbytek = (k - prvni) / (cols - 1)
+            sirky_cm = [prvni] + [zbytek] * (cols - 1)
+            lay = OxmlElement("w:tblLayout"); lay.set(qn("w:type"), "fixed"); t._tbl.tblPr.append(lay)
+        elif not sirky_cm:
+            # malá tabulka: kompaktní šířka (jako v CV1), ne přes celou stránku
+            delky = [max(len(re.sub(r"[_^{}*$]", "", str(r[j] if j < len(r) else ""))) for r in data) for j in range(cols)]
+            sirky_cm = [min(6.0, max(1.6, 0.022 * velikost * d + 0.6)) for d in delky]
+            if sum(sirky_cm) > k:
+                sirky_cm = [w * k / sum(sirky_cm) for w in sirky_cm]
+            t.autofit = False
         if sirky_cm:
+            grid = t._tbl.tblGrid
+            for j, gc in enumerate(grid.findall(qn("w:gridCol"))):
+                if j < len(sirky_cm):
+                    gc.set(qn("w:w"), str(int(sirky_cm[j] * 567)))
             for j, w in enumerate(sirky_cm):
                 for i in range(rows):
                     t.cell(i, j).width = Cm(w)
-        # opakovat záhlaví na další stránce
         if tucny_radek0:
             trPr = t.rows[0]._tr.get_or_add_trPr()
             h = OxmlElement("w:tblHeader"); h.set(qn("w:val"), "true"); trPr.append(h)
-        self.doc.add_paragraph().paragraph_format.space_after = Pt(2)
+        mez = self.doc.add_paragraph()
+        mez.paragraph_format.space_after = Pt(2)
         return t
 
     def pristroje(self, radky: Sequence[Sequence[str]]):
-        """Tabulka použitých přístrojů (5 sloupců dle Zásad). Chybějící evid. číslo -> '[[DOPLNIT: evid. č.]]'."""
+        """Tabulka použitých přístrojů (5 sloupců). Chybějící evid. číslo -> '[[DOPLNIT: evid. č.]]'."""
         data = [PRISTROJE_HLAVICKA] + [list(r) + [""] * (5 - len(r)) for r in radky]
-        t = self._tabulka(data, tucny_radek0=True, tucny_sloupec0=True, sirky_cm=PRISTROJE_SIRKY_CM)
-        return t
+        return self._tabulka(data, tucny_radek0=True, sirky_cm=PRISTROJE_SIRKY_CM, velikost=11,
+                             podbarvit=False, zarovnat_vlevo=True, velikost_hlavicky=12)
 
     def tabulka(self, nazev: str | None, data: dict | Sequence[Sequence], orientace: str = "vodorovne",
-                des: int | Sequence[int] | dict | None = 2, max_sloupcu: int = 12, velikost: int = 10):
-        """Tabulka naměřených/vypočítaných hodnot.
+                des: int | Sequence[int] | dict | None = 2, max_sloupcu: int = 16, velikost: float = 10.5,
+                podminky: str | None = None, vyznacit: dict | None = None, cislovat: bool = True):
+        """Tabulka naměřených/vypočítaných hodnot ve stylu CV1.
 
-        nazev: nadpis H2 nad tabulkou – musí říct CO a NA ČEM se měřilo (součástka + parametry).
-        data:  dict {"U_{0} [V]": [..], "I_{0} [mA]": [..]}  (veličina i s jednotkou v [ ])
-               nebo seznam řádků včetně hlavičky.
-        orientace: "vodorovne" = veličiny v řádcích (jako ve vzorech), dlouhé řady se zalomí
-                   po `max_sloupcu` hodnotách; "svisle" = veličiny ve sloupcích.
-        des:   počet desetinných míst – jedno číslo, seznam podle veličin, nebo dict {klíč: des}.
+        nazev:     popisek nad tabulkou – CO a NA ČEM se měřilo (součástka + parametry);
+                   automaticky očíslovaný „1) …“, tučně 10 pt.
+        podminky:  drobný text za názvem (9 pt), např. "I = konst. = 15 mA,  Z = U / I".
+        data:      dict {"U_{0} [V]": [..], ...} (veličina i s jednotkou v [ ]) nebo seznam řádků
+                   včetně hlavičky.
+        orientace: "vodorovne" = veličiny v řádcích (1. sloupec podbarvený), dlouhé řady se zalomí
+                   po `max_sloupcu`; "svisle" = veličiny ve sloupcích (podbarvená hlavička).
+        des:       desetinná místa – číslo, seznam podle veličin nebo dict {klíč: des}.
+        vyznacit:  {klíč veličiny: [indexy hodnot]} -> oranžově podbarvené a tučné (rezonance, max…).
+        Široké tabulky: před nimi p.na_sirku() (jako v CV1), max_sloupcu ~ 30.
         """
         if nazev:
-            self.h2(nazev)
+            self._ntab += 1
+            p = self.popisek(f"{self._ntab}) {nazev}" if cislovat else nazev, velikost=10)
+            if podminky:
+                r = p.add_run("    ")
+                self._runs(p, podminky, size=Pt(9))
+        vyznacit = vyznacit or {}
         if isinstance(data, dict):
             klice = list(data.keys())
+
             def d_for(k, idx):
                 if isinstance(des, dict):
                     return des.get(k, 2)
@@ -410,15 +533,20 @@ class Protokol:
             sloupce = [s + [""] * (n - len(s)) for s in sloupce]
             if orientace == "vodorovne":
                 kusy = [(a, min(a + max_sloupcu, n)) for a in range(0, n, max_sloupcu)]
-                vse = []
+                vse, zv = [], set()
                 for a, b in kusy:
                     for k, s in zip(klice, sloupce):
-                        vse.append([k] + s[a:b] + [""] * (max_sloupcu - (b - a) if len(kusy) > 1 else 0))
+                        for idx in vyznacit.get(k, []):
+                            if a <= idx < b:
+                                zv.add((len(vse), idx - a + 1))
+                        vse.append([k] + s[a:b] + [""] * ((max_sloupcu - (b - a)) if len(kusy) > 1 else 0))
                     if (a, b) != kusy[-1]:
-                        vse.append([""] * (len(vse[-1])))
-                return self._tabulka(vse, tucny_radek0=False, tucny_sloupec0=True, velikost=velikost)
+                        vse.append([""] * len(vse[-1]))
+                return self._tabulka(vse, tucny_radek0=False, tucny_sloupec0=True, velikost=velikost,
+                                     zvyraznene=zv)
             data2 = [klice] + [list(r) for r in zip(*sloupce)]
-            return self._tabulka(data2, tucny_radek0=True, velikost=velikost)
+            zv = {(idx + 1, j) for j, k in enumerate(klice) for idx in vyznacit.get(k, [])}
+            return self._tabulka(data2, tucny_radek0=True, velikost=velikost, zvyraznene=zv)
         data2 = [[fmt(v, des if isinstance(des, int) else 2) for v in r] for r in data]
         return self._tabulka(data2, tucny_radek0=True, velikost=velikost)
 
@@ -448,7 +576,7 @@ def _pandoc_bin():
 
 
 def _latex_na_omml(rovnice):
-    """Vrátí seznam XML elementů m:oMath (v pořadí) pro zadané LaTeX rovnice."""
+    """Vrátí seznam elementů m:oMath (v pořadí) pro zadané LaTeX rovnice."""
     with tempfile.TemporaryDirectory() as td:
         md = os.path.join(td, "r.md")
         out = os.path.join(td, "r.docx")
@@ -462,8 +590,7 @@ def _latex_na_omml(rovnice):
     from lxml import etree
     root = etree.fromstring(xml.encode("utf-8"))
     body = root.find(qn("w:body"))
-    vysl = {}
-    akt = None
+    vysl, akt = {}, None
     for p in body.iter(qn("w:p")):
         txt = "".join(t.text or "" for t in p.iter(qn("w:t")))
         m = re.fullmatch(r"MARK(\d+)", txt.strip())
@@ -529,7 +656,6 @@ def _vloz_rovnice(cesta, rovnice):
             t = r.find(qn("w:t"))
             if t is not None and t.text and t.text.startswith("@@ROVNICE"):
                 mapa[int(re.search(r"\d+", t.text).group())] = (p, r)
-    # rovnice v tabulkách/záhlavích tu nejsou podporované – jen tělo dokumentu
     for idx, (p, r) in mapa.items():
         lx, disp, tucne = rovnice[idx]
         om = copy.deepcopy(omml[idx])

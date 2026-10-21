@@ -48,7 +48,11 @@ alternativa `pip install pypandoc_binary`).
 
 - Pořadí částí (nadpis 1. úrovně, přesně takto): **Teoretický úvod → Schéma zapojení → Použité
   přístroje → Postup měření → Tabulky → Příklad výpočtu → (grafy) → Závěr**.
-- Každá strana: záhlaví „Matyáš Mlnařík“ vlevo, číslo stránky vpravo. A4, okraje 2,5 cm, Calibri 11.
+- **Vzhled = Matyášův protokol CV1** (`references/vzory/CV1_Mlnarik_VZOR_STYLU.md`, originál v repu
+  `podklady/elaboraty/CV1_Mlnarik_VZOR_STYLU.docx`): Calibri 11, černý text zarovnaný vlevo; nadpisy
+  **černé, tučné, číslované** („1. Teoretický úvod“ 20 pt, „1.1 …“ 14 pt); **záhlaví: „Matyáš Mlnařík“
+  vlevo, „4. P“ vpravo; číslo stránky vpravo dole**; klíčové pojmy a hodnoty v textu **tučně**.
+  To vše dělá `protokol.py` – nepřebíjej ho vlastním formátováním.
 - **Teoretický úvod** 2–3 strany *vlastními slovy*, pokrýt body „Uveďte“ z podkladů, vzorce jako
   rovnice s popisem veličin, vlastní obrázky ideálních průběhů, na konci „Použitá literatura“.
 - **Schéma** vlastní, značky podle ČSN EN 60617 (rezistor = obdélník, přístroj = kroužek s písmenem),
@@ -56,13 +60,15 @@ alternativa `pip install pypandoc_binary`).
 - **Použité přístroje**: tabulka `OZNAČENÍ VE SCHÉMATU | NÁZEV, FUNKCE | TYP, ROZSAH | EVIDENČNÍ
   (VÝROBNÍ) ČÍSLO | POZNÁMKA`. Evidenční čísla **nikdy nevymýšlej** – chybí-li: `[[DOPLNIT: evid. č.]]`.
 - **Postup** v minulém čase („zapojili jsme…“), po bodech zadání, se skutečnými přístroji a odchylkami.
-- **Tabulky**: název říká co a na čem (součástka + parametry), jednotky v `[ ]`, rozumné zaokrouhlení,
-  u nelineárních charakteristik ≥ 15 bodů.
+- **Tabulky** (kapitola na straně na šířku): popisek „1) co a na čem (součástka + parametry)“ +
+  podmínky drobně, veličiny s jednotkami v `[ ]` na modrém podbarvení, vyznačené hodnoty (rezonance,
+  maxima…) oranžově, rozumné zaokrouhlení, u nelineárních charakteristik ≥ 15 bodů.
 - **Příklad výpočtu** pro každou požadovanou veličinu: obecný vztah → popis veličin → dosazení na
   samostatném řádku → **tučný výsledek s jednotkou**.
-- **Grafy**: každý sám na straně A4 na šířku; název nahoře se součástkou a parametry; osy
-  `veličina [jednotka]`; hustý rastr; body jako křížky/kolečka **proložené** přímkou/hladkou křivkou;
-  řady rozlišitelné černobíle; legenda pod grafem; Ri apod. z proložené přímky s **ΔU a ΔI
+- **Grafy** (kapitola „Grafy“ vkládá `p.graf()` sám): každý sám na straně A4 na šířku; název nahoře
+  se součástkou a parametry; osy `veličina [jednotka]`; hustý rastr; **barevně jako v CV1** – modré
+  křížky naměřených bodů **proložené** modrou přímkou/hladkou křivkou, důležité body zvýrazněné
+  velkým barevným křížkem s popiskem; další řady jinou barvou i stylem čáry; legenda pod grafem; Ri apod. z proložené přímky s **ΔU a ΔI
   okótovanými přes celý rozsah**; hodnoty potřebné pro výpočet v grafu vyznač.
 - **Závěr** jen souvislý text ve větách (žádné odrážky/tabulky), s konkrétními čísly: porovnání
   s teorií z TÚ, porovnání metod/součástek, chyby měření a jejich příčiny, vhodnost přístrojů,
@@ -123,6 +129,8 @@ info = graf("g1.png", nazev="Zatěžovací charakteristika stabilizátoru L200\n
             kota=dict(rada=0, dx="ΔI", dy="ΔU"))
 ri = abs(info[0]["kota"]["pomer"])   # pozor na jednotky os
 ```
+Zvýrazněné body: `body=[dict(x=75, y=28, text="$f_s$ = 75 Hz", barva="#c0392b", popis="rezonance")]`,
+pásmo: `pasmo=dict(x1=…, x2=…, popis="…")`.
 `prolozeni`: `primka` | `hladka` | `poly2` | `poly3` | `exp` | `spojnice` | `None`. Každé PNG si
 prohlédni (Read) a oprav, co nesedí (překryvy, nevhodné proložení, useknutý název).
 
@@ -137,18 +145,21 @@ Každé měřicí zapojení zvlášť; PNG prohlédni.
 ### 5. Sestavení .docx
 ```python
 from protokol import Protokol
-p = Protokol(autor="Matyáš Mlnařík")
-p.h1("Teoretický úvod"); p.h2("…"); p.text("… U_{0} … $R_i$ …"); p.rovnice(r"R_i = \frac{\Delta U}{\Delta I}")
+p = Protokol(autor="Matyáš Mlnařík", trida="4. P")      # nadpisy se číslují samy
+p.h1("Teoretický úvod"); p.h2("…"); p.text("… **klíčový pojem** … U_{0} … $R_i$ …")
+p.odrazky(["**Kmitočet f [Hz]** určuje výšku tónu; …"]); p.rovnice(r"R_i = \frac{\Delta U}{\Delta I}")
 p.obrazek("ideal.png", 12, popisek="…"); p.h2("Použitá literatura"); p.odrazky(["…"])
 p.h1("Schéma zapojení");  p.schema("s1.png", "Měření zatěžovací charakteristiky")
 p.h1("Použité přístroje"); p.pristroje([["V1", "multimetr – voltmetr", "UNI-T UT804", "10-10-1862", ""]])
 p.h1("Postup měření");    p.text("…")
-p.h1("Tabulky");          p.tabulka("Tabulka … (součástka + parametry)", {"U_{1} [V]": U1, "U_{2} [V]": U2}, des=3)
+p.h1("Tabulky", na_sirku=True)
+p.tabulka("Stabilizační charakteristika L200 (U_{out} ≈ 4 V)", {"U_{1} [V]": U1, "U_{2} [V]": U2},
+          des=3, podminky="naprázdno", vyznacit={"U_{2} [V]": [2]}, max_sloupcu=30)
 p.h1("Příklad výpočtu")
 p.vypocet("Výpočet vnitřního odporu L200", r"R_i = \frac{\Delta U}{\Delta I}",
           [("$\\Delta U$", "změna výstupního napětí [V]"), ("$\\Delta I$", "změna proudu [A]")],
           r"R_i = \frac{0,557}{0,3676}", r"R_i = 1,52\ \Omega")
-p.graf("g1.png")          # každý graf = samostatná strana na šířku
+p.graf("g1.png")          # 1. graf vloží i kapitolu „Grafy“; každý graf = samostatná strana na šířku
 p.h1("Závěr");            p.text("odstavec…\n\nodstavec…")
 p.uloz("EM_CV16_Stabilizatory.docx")
 ```

@@ -33,9 +33,11 @@ from matplotlib import ticker
 # A4 na šířku minus okraje 2,5 cm -> 24,7 x 16 cm (ponecháme rezervu na záhlaví)
 FIGSIZE = (24.7 / 2.54, 15.4 / 2.54)
 ZNACKY = ["x", "o", "^", "s", "D", "v", "+", "*"]
+ZNACKY_BAREVNE = ["x", "x", "x", "o", "^", "s", "D", "v"]   # CV1: naměřené body křížky
 CARY = ["-", "--", "-.", ":", (0, (5, 1, 1, 1)), (0, (3, 1, 1, 1, 1, 1))]
 BARVY_BW = ["black"] * 8
-BARVY = ["#1f4e9a", "#c0392b", "#1e8449", "#7d3c98", "#d35400", "#117a65", "#5d6d7e", "#b7950b"]
+# paleta podle CV1: modrá (hlavní řada), oranžová, zelená, červená …
+BARVY = ["#1f5aa6", "#e67e22", "#27ae60", "#c0392b", "#7d3c98", "#117a65", "#5d6d7e", "#b7950b"]
 
 
 def _tex(s: str) -> str:
@@ -66,8 +68,11 @@ def _zalom(t, n=72):
 
 
 def _carka(x, pos=None):
+    """Desetinná čárka a mezera jako oddělovač tisíců (1 000, 20 000) – jako v CV1."""
     if x == 0:
         return "0"
+    if abs(x) >= 1000 and float(x).is_integer():
+        return f"{int(x):,}".replace(",", "\u00a0")
     s = f"{x:.6g}"
     if "e" in s:
         s = f"{x:.3g}"
@@ -117,8 +122,9 @@ def _fit(x, y, druh):
 
 def graf(soubor: str, nazev: str, osa_x: str, osa_y: str, rady: list[dict],
          xlog: bool = False, ylog: bool = False, xlim=None, ylim=None,
-         kota: dict | None = None, barevne: bool = False, legenda: bool | None = None,
-         vyznacit: list[dict] | None = None, osa_y2: dict | None = None, dpi: int = 200):
+         kota: dict | None = None, barevne: bool = True, legenda: bool | None = None,
+         vyznacit: list[dict] | None = None, osa_y2: dict | None = None, dpi: int = 200,
+         body: list[dict] | None = None, pasmo: dict | None = None):
     """Vykreslí graf a uloží PNG. Vrací seznam info o proložení pro každou řadu.
 
     rady: [dict(x=[...], y=[...], popis="...", prolozeni="hladka", znacka=None, cara=None)]
@@ -127,6 +133,10 @@ def graf(soubor: str, nazev: str, osa_x: str, osa_y: str, rady: list[dict],
     vyznacit: [dict(y=…, text="jmenovitá hodnota", styl="--"), dict(x=…, text=…)] – vodorovné/svislé
           čáry (jmenovitá hodnota, tolerance …).
     osa_y2: dict(osa="P [W]", rady=[...]) – druhá osa y vpravo (např. výkon k VA charakteristice).
+    body: [dict(x=…, y=…, text="f_s = 75 Hz\nZ_max = 28 Ω", barva="#c0392b", popis="rezonance")]
+          – zvýrazněné body (velký křížek + popisek se šipkou), jako rezonance/jmenovitá hodnota v CV1.
+    pasmo: dict(x1=…, x2=…, popis="rozsah dle výrobce 400–10 000 Hz") – šedě podbarvené pásmo.
+    barevne: True = barvy jako v CV1 (výchozí); False = černobíle.
     """
     plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 11, "axes.titlesize": 14,
                          "axes.unicode_minus": False, "mathtext.default": "it"})
@@ -139,7 +149,7 @@ def graf(soubor: str, nazev: str, osa_x: str, osa_y: str, rady: list[dict],
         for i, r in enumerate(rr):
             j = i + offset
             x = np.asarray(r["x"], float); y = np.asarray(r["y"], float)
-            zn = r.get("znacka", ZNACKY[j % len(ZNACKY)])
+            zn = r.get("znacka", (ZNACKY_BAREVNE if barevne else ZNACKY)[j % len(ZNACKY)])
             ca = r.get("cara", CARY[j % len(CARY)])
             b = r.get("barva", barvy[j % len(barvy)])
             pop = r.get("popis", "")
@@ -176,11 +186,14 @@ def graf(soubor: str, nazev: str, osa_x: str, osa_y: str, rady: list[dict],
             a.set_minor_locator(ticker.AutoMinorLocator(5))
             a.set_major_formatter(ticker.FuncFormatter(_carka))
         else:
-            a.set_minor_locator(ticker.LogLocator(subs=np.arange(2, 10)))
+            a.set_major_locator(ticker.LogLocator(base=10, subs=(1.0,)))
+            a.set_minor_locator(ticker.LogLocator(base=10, subs=np.arange(2, 10)))
             a.set_major_formatter(ticker.FuncFormatter(_carka))
-            a.set_minor_formatter(ticker.NullFormatter())
-    ax.grid(which="major", color="0.45", linewidth=0.8)
-    ax.grid(which="minor", color="0.75", linewidth=0.4)
+            # popisky i na 2× a 5× dekády (200, 500, 2 000 …) jako v CV1
+            a.set_minor_formatter(ticker.FuncFormatter(
+                lambda v, pos: _carka(v) if round(v / 10 ** np.floor(np.log10(v)), 6) in (2.0, 5.0) else ""))
+    ax.grid(which="major", color="0.55", linewidth=0.8)
+    ax.grid(which="minor", color="0.82", linewidth=0.5)
     ax.set_axisbelow(True)
 
     for v in (vyznacit or []):
@@ -217,6 +230,24 @@ def graf(soubor: str, nazev: str, osa_x: str, osa_y: str, rady: list[dict],
                 bbox=dict(fc="white", ec="none", pad=1))
         info["kota"] = dict(x1=x1, x2=x2, y1=y1, y2=y2, dx=x2 - x1, dy=y2 - y1,
                             pomer=(y2 - y1) / (x2 - x1) if x2 != x1 else np.inf)
+
+    if pasmo:
+        h = ax.axvspan(pasmo["x1"], pasmo["x2"], color="0.5", alpha=0.10, zorder=0,
+                       label=pasmo.get("popis", ""))
+        if pasmo.get("popis"):
+            handles.append(h)
+    for bd in (body or []):
+        b = bd.get("barva", "#c0392b")
+        h, = ax.plot([bd["x"]], [bd["y"]], linestyle="none", marker="x", markersize=14,
+                     markeredgewidth=3, color=b, zorder=5, label=bd.get("popis", ""))
+        if bd.get("popis"):
+            handles.append(h)
+        if bd.get("text"):
+            y0, y1 = ax.get_ylim()
+            nahore = (bd["y"] - y0) / (y1 - y0) > 0.75
+            ax.annotate(bd["text"], (bd["x"], bd["y"]), xytext=bd.get("posun", (30, -40) if nahore else (25, 20)),
+                        textcoords="offset points", fontsize=11,
+                        arrowprops=dict(arrowstyle="->", color="black", lw=1))
 
     if legenda is None:
         legenda = len(handles) > 0

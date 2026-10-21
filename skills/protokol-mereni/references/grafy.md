@@ -43,7 +43,14 @@ Pak v dokumentu: `p.graf("g01_zatezovaci.png")` – graf dostane vlastní stranu
 - Osy `veličina [jednotka]` – indexy piš `U_0`, `I_{SC}`; skript je převede na matematický zápis.
 - Více řad: každá má `popis` do legendy (parametr řady, např. „C0 = 8 mF“); skript automaticky
   střídá značky (×, ○, △, □) a styly čar (plná, čárkovaná, čerchovaná) → čitelné v ČB.
-- Barevně jen pokud to Matyáš chce: `barevne=True`.
+- **Barvy jako v CV1 jsou výchozí** (`barevne=True`): modrá #1f5aa6 hlavní řada, další řady
+  oranžová / zelená / červená; naměřené body křížky. Černobíle jen na přání: `barevne=False`.
+- **Zvýrazněné body** (rezonance, maximum, jmenovitá hodnota, pracovní bod):
+  `body=[dict(x=75, y=28, text="$f_s$ = 75 Hz\n$Z_{max}$ = 28 Ω", barva="#c0392b", popis="rezonance")]`
+  → velký křížek + popisek se šipkou (indexy piš přes `$…$`). Barvy: červená #c0392b, zelená #27ae60,
+  oranžová #e67e22.
+- **Pásmo** (rozsah dle výrobce, pracovní oblast): `pasmo=dict(x1=400, x2=10000, popis="rozsah dle výrobce")`.
+- Logaritmická osa má popisky i na 2× a 5× dekády (200, 500, 2 000 …), tisíce s mezerou (1 000).
 - Druhá osa (např. P k VA charakteristice): `osa_y2=dict(osa="P [mW]", rady=[...])`.
 - Jmenovitá hodnota / tolerance: `vyznacit=[dict(y=2.2, text="jmenovitá hodnota 2,2 µF")]`,
   pro sloupcové grafy `sloupcovy(..., jmenovita=..., tolerance_pct=...)`.
