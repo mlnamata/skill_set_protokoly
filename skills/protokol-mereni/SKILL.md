@@ -57,8 +57,9 @@ alternativa `pip install pypandoc_binary`).
   rovnice s popisem veličin, vlastní obrázky ideálních průběhů, na konci „Použitá literatura“.
 - **Schéma** vlastní, značky podle ČSN EN 60617 (rezistor = obdélník, přístroj = kroužek s písmenem),
   označení prvků shodné s tabulkou přístrojů.
-- **Použité přístroje**: tabulka `OZNAČENÍ VE SCHÉMATU | NÁZEV, FUNKCE | TYP, ROZSAH | EVIDENČNÍ
-  (VÝROBNÍ) ČÍSLO | POZNÁMKA`. Evidenční čísla **nikdy nevymýšlej** – chybí-li: `[[DOPLNIT: evid. č.]]`.
+- **Použité přístroje**: tabulka `Označení ve schématu | Název, funkce | Typ, rozsah | Evidenční
+  (výrobní) číslo | Poznámka` (`p.pristroje`). Evidenční čísla **nikdy nevymýšlej** – chybí-li:
+  `[[DOPLNIT: evid. č.]]`.
 - **Postup** v minulém čase („zapojili jsme…“), po bodech zadání, se skutečnými přístroji a odchylkami.
 - **Tabulky** (kapitola na straně na šířku): popisek „1) co a na čem (součástka + parametry)“ +
   podmínky drobně, veličiny s jednotkami v `[ ]` na modrém podbarvení, vyznačené hodnoty (rezonance,
