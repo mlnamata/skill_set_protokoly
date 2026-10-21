@@ -1,6 +1,6 @@
 ---
 name: protokol-mereni
-description: Sestaví kompletní protokol o měření (elaborát) z praktických cvičení VOŠ a SPŠE Plzeň (EM, ESO …) jako Word .docx – teoretický úvod, vlastní schémata podle normy, tabulku přístrojů, postup, tabulky, příklady výpočtu s rovnicemi Wordu, grafy přes celou A4 s proložením a závěr – jen ze zaslaného zadání a naměřených hodnot. Použij vždy, když Matyáš pošle zadání úlohy, naměřené hodnoty (xlsx, csv, fotka sešitu), podklady k měření nebo napíše elaborát, elab, protokol, vypracuj měření, CV12, úloha č., i když slovo protokol nepadne; také pro opravu vráceného protokolu a pro samostatné grafy, výpočty nebo závěr do protokolu.
+description: Sestaví kompletní protokol o měření (elaborát) VOŠ a SPŠE Plzeň jako Word .docx ze zadání a naměřených hodnot. Použij vždy, když Matyáš pošle zadání, naměřené hodnoty nebo napíše elaborát, elab, protokol, úloha č., CV12.
 ---
 
 # Protokol o měření (elaborát) – VOŠ a SPŠE Plzeň
@@ -19,7 +19,7 @@ Skripty a podrobná pravidla jsou v repu `https://github.com/mlnamata/skill_set_
 (složka `skills/protokol-mereni/`). Najdi je v tomto pořadí a cestu ulož do `SKILL`:
 
 1. adresář tohoto SKILL.md, pokud obsahuje `scripts/protokol.py`;
-2. jinak repo stáhni:
+2. jinak repo stáhni (vždy aktuální verzi – `pull`, pokud už existuje):
    ```bash
    R=$HOME/skill_set_protokoly
    [ -d "$R/.git" ] && git -C "$R" pull -q || git clone -q --depth 1 https://github.com/mlnamata/skill_set_protokoly "$R"
@@ -35,26 +35,28 @@ alternativa `pip install pypandoc_binary`).
 | Soubor v `$SKILL` | Kdy číst |
 |---|---|
 | `references/pravidla.md` | vždy – školní Zásady + co vyučující vrací |
-| `references/styl-a-struktura.md` | vždy – jak psát každou část, formát výpočtů, závěr |
+| `references/styl-a-struktura.md` | vždy – vzhled podle CV1, jak psát každou část, formát výpočtů, závěr |
+| `references/vzory/CV1_Mlnarik_VZOR_STYLU.md` | vždy – **hlavní vzor vzhledu a stylu** (Matyášův CV1) |
 | `references/grafy.md` | před tvorbou grafů |
 | `references/schemata.md` | před kreslením schémat |
 | `references/vzory/README.md` + nejbližší vzor | rozsah a hloubka podobné úlohy (nekopírovat text!) |
-| `scripts/protokol.py` | sestavení .docx (nadpisy, text, rovnice, tabulky, grafy na šířku, záhlaví) |
-| `scripts/graf.py` | grafy podle pravidel (rastr, body, proložení, kóty ΔU/ΔI, legenda dole) |
+| `scripts/protokol.py` | sestavení .docx (styl CV1, číslované nadpisy, rovnice, tabulky, grafy na šířku, záhlaví/zápatí) |
+| `scripts/graf.py` | grafy ve stylu CV1 (rastr, body, proložení, zvýrazněné body, kóty ΔU/ΔI, legenda dole) |
 | `scripts/schema.py` | schémata v IEC značkách (schemdraw) + V/A/W/osciloskop |
 | `scripts/kontrola.py` | závěrečná kontrola .docx proti Zásadám |
 
 ## Nejdůležitější pravidla (platí vždy)
 
 - Pořadí částí (nadpis 1. úrovně, přesně takto): **Teoretický úvod → Schéma zapojení → Použité
-  přístroje → Postup měření → Tabulky → Příklad výpočtu → (grafy) → Závěr**.
+  přístroje → Postup měření → Tabulky → Příklad výpočtu → Grafy → Závěr**.
 - **Vzhled = Matyášův protokol CV1** (`references/vzory/CV1_Mlnarik_VZOR_STYLU.md`, originál v repu
   `podklady/elaboraty/CV1_Mlnarik_VZOR_STYLU.docx`): Calibri 11, černý text zarovnaný vlevo; nadpisy
   **černé, tučné, číslované** („1. Teoretický úvod“ 20 pt, „1.1 …“ 14 pt); **záhlaví: „Matyáš Mlnařík“
   vlevo, „4. P“ vpravo; číslo stránky vpravo dole**; klíčové pojmy a hodnoty v textu **tučně**.
   To vše dělá `protokol.py` – nepřebíjej ho vlastním formátováním.
 - **Teoretický úvod** 2–3 strany *vlastními slovy*, pokrýt body „Uveďte“ z podkladů, vzorce jako
-  rovnice s popisem veličin, vlastní obrázky ideálních průběhů, na konci „Použitá literatura“.
+  rovnice s popisem veličin, odrážky s tučným pojmem na začátku, vlastní obrázky ideálních průběhů,
+  na konci „Použitá literatura“.
 - **Schéma** vlastní, značky podle ČSN EN 60617 (rezistor = obdélník, přístroj = kroužek s písmenem),
   označení prvků shodné s tabulkou přístrojů.
 - **Použité přístroje**: tabulka `Označení ve schématu | Název, funkce | Typ, rozsah | Evidenční
@@ -64,17 +66,18 @@ alternativa `pip install pypandoc_binary`).
 - **Tabulky** (kapitola na straně na šířku): popisek „1) co a na čem (součástka + parametry)“ +
   podmínky drobně, veličiny s jednotkami v `[ ]` na modrém podbarvení, vyznačené hodnoty (rezonance,
   maxima…) oranžově, rozumné zaokrouhlení, u nelineárních charakteristik ≥ 15 bodů.
-- **Příklad výpočtu** pro každou požadovanou veličinu: obecný vztah → popis veličin → dosazení na
-  samostatném řádku → **tučný výsledek s jednotkou**.
-- **Grafy** (kapitola „Grafy“ vkládá `p.graf()` sám): každý sám na straně A4 na šířku; název nahoře
+- **Příklad výpočtu** pro každou požadovanou veličinu: tučný popisek → obecný vztah → popis veličin
+  → dosazení na samostatném řádku → **tučný výsledek s jednotkou**.
+- **Grafy** (kapitolu „Grafy“ vkládá `p.graf()` sám): každý sám na straně A4 na šířku; název nahoře
   se součástkou a parametry; osy `veličina [jednotka]`; hustý rastr; **barevně jako v CV1** – modré
   křížky naměřených bodů **proložené** modrou přímkou/hladkou křivkou, důležité body zvýrazněné
-  velkým barevným křížkem s popiskem; další řady jinou barvou i stylem čáry; legenda pod grafem; Ri apod. z proložené přímky s **ΔU a ΔI
-  okótovanými přes celý rozsah**; hodnoty potřebné pro výpočet v grafu vyznač.
-- **Závěr** jen souvislý text ve větách (žádné odrážky/tabulky), s konkrétními čísly: porovnání
-  s teorií z TÚ, porovnání metod/součástek, chyby měření a jejich příčiny, vhodnost přístrojů,
-  splnění všech bodů zadání, co se nepovedlo a proč. Zakázané: „proběhlo dle očekávání“,
-  „hodnoty odpovídají teoretickým předpokladům“ bez rozboru.
+  velkým barevným křížkem s popiskem; další řady jinou barvou i stylem čáry; legenda pod grafem;
+  Ri apod. z proložené přímky s **ΔU a ΔI okótovanými přes celý rozsah**; hodnoty potřebné pro
+  výpočet v grafu vyznač.
+- **Závěr** jen souvislý text ve větách (žádné odrážky/tabulky), s konkrétními čísly (důležité hodnoty
+  tučně): porovnání s teorií z TÚ, porovnání metod/součástek, chyby měření a jejich příčiny,
+  vhodnost přístrojů, splnění všech bodů zadání, co se nepovedlo a proč. Zakázané: „proběhlo dle
+  očekávání“, „hodnoty odpovídají teoretickým předpokladům“ bez rozboru.
 - **Nikdy nevymýšlej naměřené hodnoty, evidenční čísla ani výsledky.** Nekopíruj text ze vzorů ani z webu.
 - Desetinná čárka, mezera před jednotkou, µ pro mikro, indexy jako indexy.
 
@@ -107,7 +110,7 @@ protokol udělal **celý najednou, bez dalšího vyptávání a bez polotovarů*
    - přílohy, které mají přijít později (oscilogramy, fotky) – nechat místo?
    - datum měření, skupina, „NEMĚŘIL“ – jen pokud to ovlivní text.
    Neptej se na věci, které jsou ve vstupech nebo které má skill pevně dané (formát, styl,
-   autor, struktura) – na ty platí pravidla výše.
+   autor, třída, struktura) – na ty platí pravidla výše.
 4. **Počkej na odpovědi.** Pak už se nevracej s dalšími otázkami a dodělej **kompletní** protokol
    (kroky 2–7) přesně podle odpovědí. Co Matyáš řekne, že nemá / dodá později, dej jako
    `[[DOPLNIT: …]]` (žlutě) a vyjmenuj na konci – nic nevymýšlej.
@@ -131,7 +134,7 @@ info = graf("g1.png", nazev="Zatěžovací charakteristika stabilizátoru L200\n
 ri = abs(info[0]["kota"]["pomer"])   # pozor na jednotky os
 ```
 Zvýrazněné body: `body=[dict(x=75, y=28, text="$f_s$ = 75 Hz", barva="#c0392b", popis="rezonance")]`,
-pásmo: `pasmo=dict(x1=…, x2=…, popis="…")`.
+pásmo: `pasmo=dict(x1=…, x2=…, popis="…")`. Černobíle jen na přání: `barevne=False`.
 `prolozeni`: `primka` | `hladka` | `poly2` | `poly3` | `exp` | `spojnice` | `None`. Každé PNG si
 prohlédni (Read) a oprav, co nesedí (překryvy, nevhodné proložení, useknutý název).
 
@@ -157,7 +160,7 @@ p.h1("Tabulky", na_sirku=True)
 p.tabulka("Stabilizační charakteristika L200 (U_{out} ≈ 4 V)", {"U_{1} [V]": U1, "U_{2} [V]": U2},
           des=3, podminky="naprázdno", vyznacit={"U_{2} [V]": [2]}, max_sloupcu=30)
 p.h1("Příklad výpočtu")
-p.vypocet("Výpočet vnitřního odporu L200", r"R_i = \frac{\Delta U}{\Delta I}",
+p.vypocet("Výpočet vnitřního odporu L200:", r"R_i = \frac{\Delta U}{\Delta I}",
           [("$\\Delta U$", "změna výstupního napětí [V]"), ("$\\Delta I$", "změna proudu [A]")],
           r"R_i = \frac{0,557}{0,3676}", r"R_i = 1,52\ \Omega")
 p.graf("g1.png")          # 1. graf vloží i kapitolu „Grafy“; každý graf = samostatná strana na šířku
@@ -166,7 +169,7 @@ p.uloz("EM_CV16_Stabilizatory.docx")
 ```
 Mini-markup: `**tučně**`, `*kurzíva*`, `X_{index}`, `X^{exp}`, `$LaTeX$`, `[[DOPLNIT: …]]`.
 Rovnice v LaTeXu, desetinná čárka normálně „2,63“, jednotky `\ \Omega`, `\ \mathrm{V}`.
-`p.tabulka(..., orientace="vodorovne"|"svisle", des=2 | [..] | {klíč: des}, max_sloupcu=12)`.
+`p.tabulka(..., orientace="vodorovne"|"svisle", des=2 | [..] | {klíč: des}, podminky=…, vyznacit=…)`.
 
 ### 6. Kontrola
 ```bash
