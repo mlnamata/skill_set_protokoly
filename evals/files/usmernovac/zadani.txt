@@ -1,0 +1,10 @@
+EM – úloha 14: Usměrňovače
+
+Zadání:
+1) Zobrazte na osciloskopu průběh jednocestně a dvoucestně usměrněného napětí (dioda 1N5408, Graetzův můstek z diod KY718).
+2) Vypočítejte velikost vyhlazovacího kondenzátoru C0 pro dvoucestný usměrňovač: U0 = 25 V, I0MAX = 2,5 A, činitel zvlnění max. 10 %. Hodnotu zaokrouhlete na realizovatelnou z dostupných kondenzátorů.
+3) Změřte a znázorněte zatěžovací charakteristiku U0 = f(I0) a vyhlazovací charakteristiku (činitel zvlnění) = f(I0) dvoucestného usměrňovače pro 3 hodnoty C0 (vypočtená, dvojnásobná, poloviční). Měřte do I0MAX, 12–14 hodnot.
+4) Z zatěžovacích charakteristik určete vnitřní odpor usměrňovače Ri.
+Uveďte: jednocestný a dvoucestný usměrňovač, zvlnění a činitel zvlnění, filtrační kondenzátor, zatěžovací charakteristika a vnitřní odpor.
+Činitel zvlnění: φ = 2·√2·UZVL / U0 · 100 [%]  (UZVL = efektivní hodnota střídavé složky)
+Transformátor: 230 V / 30 V, 2,5 A (odbočkový nefungoval, dostali jsme tento)

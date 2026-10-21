@@ -1,0 +1,14 @@
+EM – úloha č. 11: Měření feromagnetických materiálů
+Zkoušený předmět: toroid z trafoplechů, velký Epsteinův přístroj
+
+Udané parametry:
+Toroid: N1 = 100 z, N2 = 200 z, střední průměr dstř = 110 mm (lstř = 0,11 m pro výpočet dle podkladů), SFe = 1 cm2
+Epsteinův přístroj: N1 = N2 = 600 z, G = 10 kg, lstř = 2 m, ocel pro trafoplechy γ = 7850 kg/m3, f = 50 Hz
+
+Zadání:
+1) Změřte a nakreslete křivku prvotní magnetizace jednoho toroidního vzorku trafoplechů. Měření proveďte pomocí voltmetru a ampérmetru.
+2) Pomocí Epsteinova přístroje změřte měrné ztráty v transformátorových plechách. Měření proveďte pro indukci od B = 0,15 T do 1,5 T. Závislost PZTR = f(B) znázorněte graficky.
+3) V závěru porovnejte velikost ztrátového čísla s teoretickými předpoklady.
+
+Uveďte: křivku prvotní magnetizace, hysterezní a vířivé ztráty, měrné ztráty / ztrátové číslo p1,0 a p1,5, princip Epsteinova přístroje.
+Poznámka k měření: místo předřadného rezistoru jsme u toroidu použili malý síťový transformátor 230 V / 7 V. Voltmetr na sekundáru (N2) měří indukované napětí U2. Wattmetr ve Epsteinově přístroji – uvažovat vnitřní odpor napěťové cesty wattmetru Rw = 10 MΩ (Pw = U2^2/Rw).

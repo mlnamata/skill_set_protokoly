@@ -1,0 +1,9 @@
+RAT  regulační autotransformátor  0-230 V   3207-1956
+Traf transformátor 230/30 V, 2,5 A   bez čísla
+OSC  digitální osciloskop UNI-T UPO2104E   ???
+A    multimetr UNI-T UT890D+   ???
+Vss  multimetr UNI-T UT890D+   T-25-19
+Vstř analogový voltmetr (nf milivoltmetr) fmax 500 kHz   3208-2
+Rz1  posuvný rezistor 105 Ω, 2,5 A   D1-20-584
+Rz2  posuvný rezistor 39 Ω, 4 A      3208
+C0   elektrolytické kondenzátory 2 mF, 4 mF, 8 mF   bez čísla

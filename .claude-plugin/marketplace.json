@@ -1,0 +1,21 @@
+{
+  "name": "skill_set_protokoly",
+  "owner": {
+    "name": "Matyáš Mlnařík"
+  },
+  "metadata": {
+    "description": "Skilly pro tvorbu protokolů o měření (elaborátů) – VOŠ a SPŠE Plzeň",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "protokoly",
+      "description": "Sestavení kompletního protokolu o měření (.docx) ze zadání a naměřených hodnot",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/protokol-mereni"
+      ]
+    }
+  ]
+}

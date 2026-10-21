@@ -1,0 +1,5 @@
+T    autotransformátor      MERTEL 230 V, 50–400 Hz, 7 A, 1,82 kVA    3207-1958
+TR   síťový transformátor   Lalema 230 V / 7 V, 1,5 A, 25 VA          bez čísla (náhrada za R)
+A1   multimetr – ampérmetr  MASTECH MY78                               3207a-2
+V1   multimetr – voltmetr   MASTECH MY78                               3207a-19
+W1   wattmetr               PROVA 21 Power Harmonics & Leakage Tester  5-5-1949

@@ -1,0 +1,26 @@
+{
+  "skill_name": "protokol-mereni",
+  "evals": [
+    {
+      "id": 1,
+      "name": "stabilizatory-cv16",
+      "prompt": "Udělej mi elaborát z CV16 – stabilizátory. Zadání je v zadani.txt, naměřené hodnoty v namerene_hodnoty.xlsx (4 listy) a přístroje v pristroje.txt. Měřili jsme 14. 4. 2026, skupina S1.",
+      "expected_output": "Kompletní .docx: TÚ (parametrický + integrovaný stabilizátor, činitel stabilizace, Ri), schéma, tabulka přístrojů (Uz1 bez evid. č. -> DOPLNIT), postup, 4 tabulky, výpočty činitele stabilizace a Ri s dosazením, grafy stabilizačních a zatěžovacích char. + samostatný graf stabilizační oblasti s vyznačenými ΔU, závěr porovnávající L200 a Zenerův stabilizátor.",
+      "files": ["evals/files/stabilizatory/zadani.txt", "evals/files/stabilizatory/namerene_hodnoty.xlsx", "evals/files/stabilizatory/pristroje.txt"]
+    },
+    {
+      "id": 2,
+      "name": "feromagnetika-cv11",
+      "prompt": "potřebuju protokol na feromagnetika (úloha 11), posílám zadání, co jsme naměřili a přístroje",
+      "expected_output": "Kompletní .docx: výpočet H z I, B z U2 (B = U/(4,44 f N S)), plocha SFe Epsteinova přístroje z G, γ, l; Pw, PFe, měrné ztráty; graf B = f(H) s hladkým proložením, graf pztr = f(B); závěr porovnávající ztrátové číslo p1,0/p1,5 s typickými hodnotami.",
+      "files": ["evals/files/feromagnetika/zadani.txt", "evals/files/feromagnetika/namerene_hodnoty.csv", "evals/files/feromagnetika/pristroje.txt"]
+    },
+    {
+      "id": 3,
+      "name": "usmernovac-cv14-chybejici-udaje",
+      "prompt": "elab usmernovace CV14, zadani + hodnoty v priloze. evid cisla od osciloskopu a amprmetru nemam, oscilogramy dodam pak",
+      "expected_output": "Kompletní .docx s výpočtem C0 = 3 mF, tabulkami pro 3 C0 s vypočteným činitelem zvlnění, grafy zatěžovací a vyhlazovací char. (Ri z okótované přímky přes celý rozsah), místy [[DOPLNIT]] pro evid. čísla a pro oscilogramy, závěr zmiňující náhradu 3 mF -> 4 mF a náhradní transformátor.",
+      "files": ["evals/files/usmernovac/zadani.txt", "evals/files/usmernovac/hodnoty.xlsx", "evals/files/usmernovac/pristroje.txt"]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+Uz1  stejnosměrný zdroj   Power supply 3x 0-18 V, 1,8 A (2 kanály v sérii)   evid. č. nemá štítek
+V1   multimetr – voltmetr  UNI-T UT804      10-10-1862
+V2   multimetr – voltmetr  UNI-T UT890D+    T-25-05
+A    multimetr – ampérmetr UNI-T UT890D+    T-25-19
+Rz1  posuvný rezistor      METRA 250 Ω, 1,6 A   3205-9F-581
+Rz2  posuvný rezistor      METRA 120 Ω, 2 A     3205-10a-1350

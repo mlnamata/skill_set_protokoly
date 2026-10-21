@@ -1,0 +1,18 @@
+Předmět: EM            Úloha č. 16
+Název úlohy: Stabilizátory napětí v napájecích zdrojích – měření základních parametrů
+Zkoušený předmět: stabilizátory – integrovaný (L200), se Zenerovou diodou (1N5346B)
+
+Katalogové hodnoty, udané parametry:
+L200 – UinMAX = 40 V, Uout = 3–36 V (nastaveno cca 4 V), IzMAX = 0,4 A (zvoleno 0,4 A)
+1N5346B (parametrický stabilizátor se Zenerovou diodou) – UinMAX = 40 V, UZ = 9,1 V, IzMAX = 1 A
+
+Zadání:
+1) Na vzorcích stabilizátorů napětí změřte a znázorněte stabilizační charakteristiku.
+2) V samostatném grafu znázorněte (ve vhodném měřítku) stabilizační oblast.
+3) Určete činitel stabilizace jednotlivých zapojení. Hodnoty potřebné pro jeho určení v grafu vyznačte.
+4) Změřte a znázorněte zatěžovací charakteristiky stabilizátorů od stavu naprázdno do doporučené maximální hodnoty proudu.
+5) Určete hodnotu vnitřního odporu Ri. Hodnoty potřebné pro jeho určení v grafu vyznačte.
+6) Porovnejte jednotlivé stabilizátory z hlediska kvality stabilizace a tvrdosti.
+
+Uveďte: princip parametrického a integrovaného stabilizátoru, stabilizační a zatěžovací charakteristiku, činitel stabilizace, vnitřní odpor.
+Schéma: zdroj Uz1 (0–40 V) -> voltmetr V1 na vstupu -> měřený stabilizátor -> ampérmetr A -> zátěž Rz1 + Rz2 (posuvné rezistory v sérii), voltmetr V2 na výstupu stabilizátoru.
