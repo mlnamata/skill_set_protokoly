@@ -182,11 +182,13 @@ Rovnice v LaTeXu, desetinná čárka normálně „2,63“, jednotky `\ \Omega`,
 ```bash
 python3 "$SKILL/scripts/kontrola.py" EM_CV16_Stabilizatory.docx --nahled
 ```
-Oprav vše ✘, zvaž „!“. Prohlédni náhled stran. LibreOffice v náhledu **nezobrazí rovnice** (OMML) –
-ve Wordu jsou; obsah rovnic kontroluj z výpisu skriptu. Projdi body zadání jeden po druhém.
+Oprav vše ✘ (včetně případných žlutých/zástupných míst), zvaž „!“. Prohlédni náhled stran.
+LibreOffice v náhledu **nezobrazí rovnice** (OMML) – ve Wordu jsou; obsah rovnic kontroluj z výpisu
+skriptu. Projdi body zadání jeden po druhém.
 
 ### 7. Předání
-Pošli .docx (`EM_CV<číslo>_<Úloha>.docx`) a stručně: co obsahuje a případné odchylky/předpoklady. Připomeň jen desky a originál naměřených hodnot s podpisem.
+Pošli .docx (`EM_CV<číslo>_<Úloha>.docx`) a stručně: co obsahuje a případné odchylky/předpoklady.
+Připomeň jen desky a originál naměřených hodnot s podpisem.
 
 ## Další situace
 - **Vrácený protokol s připomínkami**: oprav přesně připomínky, zbytek zachovej.
